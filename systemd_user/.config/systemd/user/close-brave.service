@@ -1,0 +1,27 @@
+[Unit]
+Description=Ensure Brave Browser is terminated at session logout/shutdown
+# This service is designed to run its ExecStop command when the user session ends,
+# which happens during logout, shutdown, or reboot.
+# We want this to happen before the graphical session fully shuts down.
+Before=graphical-session.target
+
+[Service]
+Type=oneshot
+# RemainAfterExit=yes ensures that systemd considers the service "active" even after
+# its main command (if any) has finished, allowing ExecStop to be reliably called
+# when the service is stopped (e.g., during session shutdown).
+RemainAfterExit=yes
+# ExecStop defines the command to run when the service is stopped.
+# 1. `pkill -SIGTERM brave-browser`: Sends a graceful termination signal (SIGTERM)
+#    to all processes named 'brave-browser'. This allows the application to save
+#    data and close cleanly.
+# 2. `sleep 5`: Waits for 5 seconds to give Brave a chance to shut down.
+# 3. `if pgrep brave-browser > /dev/null; then pkill -SIGKILL brave-browser; fi`:
+#    Checks if any 'brave-browser' processes are still running. If they are,
+#    it sends a forceful kill signal (SIGKILL) to terminate them immediately.
+ExecStop=/usr/bin/sh -c "/usr/bin/pkill -TERM brave; sleep 1;"
+
+[Install]
+# WantedBy=default.target ensures that this service is started automatically
+# when your user session starts (e.g., after logging in).
+WantedBy=default.target

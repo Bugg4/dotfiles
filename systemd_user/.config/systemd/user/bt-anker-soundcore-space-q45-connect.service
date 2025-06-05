@@ -1,0 +1,18 @@
+[Unit]
+Description=Connect my Anker Q45 BT Headphones
+# We run after the user session is established.
+# By this time, the system bluetooth.service should be running.
+# We cannot directly use After=bluetooth.service here because we run in user space
+After=graphical-session.target
+
+[Service]
+Type=oneshot
+# Increase sleep to 10 seconds - adjust if needed
+ExecStartPre=/bin/sleep 10
+# Make sure to use the full path to bluetoothctl
+ExecStart=/usr/bin/bluetoothctl -- connect E8:EE:CC:2F:22:F4
+RemainAfterExit=yes
+StandardOutput=journal
+
+[Install]
+WantedBy=default.target
