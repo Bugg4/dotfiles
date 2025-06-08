@@ -1,10 +1,8 @@
 # Obligatory flex
 fastfetch
 
-# environment variable exports
-export EDITOR=micro
-export ELECTRON_OZONE_PLATFORM_HINT=wayland
-export MAKEFLAGS="--jobs=$(nproc)"
+
+
 
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
@@ -22,7 +20,7 @@ if [ -f "$HOME/.bash_aliases" ]; then
 fi
 
 # Set PATH
-PATH=$HOME/Scripts:$PATH
+PATH=$SCRIPTS_DIR:$PATH
 
 # init zoxide
 eval "$(zoxide init bash)"
