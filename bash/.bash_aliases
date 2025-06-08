@@ -1,8 +1,10 @@
+# generic
 alias ls='eza --color=auto --icons=auto --long --hyperlink --group-directories-first'
-alias stow='stow --verbose --dir=${HOME}/Repos/arch-rice/Dotfiles/ --target=${HOME}/'
+alias stow='stow --verbose --dir=${HOME}/dotfiles/ --target=${HOME}/'
 alias yt='yt-dlp'
 alias btop='btop -u 100'
 alias cat='bat'
+alias todo='micro $HOME/todo.md'
 
 # git
 alias gs="git status"
