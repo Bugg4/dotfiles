@@ -1,38 +1,29 @@
 # ~/.profile: executed by the command interpreter for login shells.
 # This file is not read by bash(1), if ~/.bash_profile or ~/.bash_login
 # exists.
-# see /usr/share/doc/bash/examples/startup-files for examples.
-# the files are located in the bash-doc package.
-
-# the default umask is set in /etc/profile; for setting the umask
-# for ssh logins, install and configure the libpam-umask package.
-#umask 022
-
-# if running bash
-if [ -n "$BASH_VERSION" ]; then
-    # include .bashrc if it exists
-    if [ -f "$HOME/.bashrc" ]; then
-    . "$HOME/.bashrc"
-    fi
-fi
 
 # set user dictories
-SCREENSHOTS_DIR=$HOME/screenshots
-DOCUMENTS_DIR=$HOME/documents
-SCRIPTS_DIR=$HOME/scripts
-DOWNLOADS_DIR=$HOME/downloads
+export SCREENSHOTS_DIR=$HOME/screenshots
+export DOCUMENTS_DIR=$HOME/documents
+export SCRIPTS_DIR=$HOME/scripts
+export DOWNLOADS_DIR=$HOME/downloads
 
-# set PATH so it includes user's private bin if it exists
+# default terminal emulator
+export TERM=alacritty
+
+# hint electron apps to use Wayland
+export ELECTRON_OZONE_PLATFORM_HINT=wayland
+
+# make flags for parallel builds
+export MAKEFLAGS=-j=$(nproc)
+
+
+# add other user directories to PATH
 if [ -d "$SCRIPTS_DIR" ] ; then
     PATH="$SCRIPTS_DIR:$PATH"
 fi
 
-# default terminal emulator
-TERM=alacritty
-
-# hint electron apps to use Wayland
-ELECTRON_OZONE_PLATFORM_HINT=wayland
-
-# make flags for parallel builds
-MAKEFLAGS=-j=$(nproc)
-
+# Automatically launch Hyprland if not running in a graphical environment
+if [ -z "$DISPLAY" ] && [ "$XDG_VTNR" = 1 ]; then
+  exec Hyprland
+fi

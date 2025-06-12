@@ -1,11 +1,8 @@
-# Obligatory flex
-fastfetch
-
-
-
-
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
+
+# flex
+fastfetc
 
 PROMPT_COMMAND='PS1_CMD1=$(pwd)'; PS1='\n\[\e[2m\]${PS1_CMD1}\n\[\e[0;1m\]\u\[\e[0;2m\]@\[\e[0m\]\h\[\e[2m\]> \[\e[0m\]'
 
@@ -14,13 +11,10 @@ HISTFILESIZE=
 export HISTTIMEFORMAT="[%F %T] "
 export HISTFILE=~/.bash_eternal_history
 
-# Aliases file
+# source aliases file
 if [ -f "$HOME/.bash_aliases" ]; then
    source "$HOME/.bash_aliases"
 fi
-
-# Set PATH
-PATH=$SCRIPTS_DIR:$PATH
 
 # init zoxide
 eval "$(zoxide init bash)"
