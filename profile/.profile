@@ -15,7 +15,7 @@ export TERM=alacritty
 export ELECTRON_OZONE_PLATFORM_HINT=wayland
 
 # make flags for parallel builds
-export MAKEFLAGS=-j=$(nproc)
+export MAKEFLAGS=-j$(nproc)
 
 
 # add other user directories to PATH
