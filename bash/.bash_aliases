@@ -3,7 +3,6 @@ alias ls='eza --color=auto --icons=auto --long --hyperlink --group-directories-f
 alias stow='stow --verbose --dir=${HOME}/dotfiles/ --target=${HOME}/'
 alias yt='yt-dlp'
 alias btop='btop -u 100'
-alias cat='bat'
 alias todo='micro $HOME/todo.md'
 
 # git
