@@ -50,3 +50,4 @@ threshold = 10
 # zathura = { template = 'zathura', target = '~/.config/zathura/zathurarc' }
 hyprland = { template = 'hyprland.wallust', target = '~/.config/hypr/colors.conf' }
 alacritty = { template = 'alacritty.wallust', target = '~/.config/alacritty/colors.toml' }
+dunst = { template = 'dunst.wallust', target = '~/.config/dunst/dunstrc' }
