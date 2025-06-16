@@ -13,11 +13,11 @@
         "custom/launcher",
         "cpu",
         "memory",
-        "network",
         "tray"
     ],
     "modules-center": [],
     "modules-right": [
+        "network#speed",
         "pulseaudio",
         "clock"
         // "custom/power"
@@ -36,13 +36,26 @@
             ]
         }
     },
-    "network": {
-        "format-wifi": "",
-        "format-ethernet": "",
-        "tooltip-format": "{essid} ({signalStrength}%)",
-        "format-linked": "{ifname} (No IP) ",
-        "format-disconnected": "⚠",
-        "format-alt": "{ifname}: {ipaddr}/{cidr}"
+    "network#speed": {
+        "interval": 1,
+        "format": "{ifname}",
+        "format-wifi": "{icon} {bandwidthDownBytes}  {bandwidthUpBytes} ",
+        "format-ethernet": "{icon} {bandwidthDownBytes}  {bandwidthUpBytes} ",
+        "format-disconnected": "󰌙",
+        "tooltip-format": "{ipaddr}",
+        "format-linked": "󰈁 {ifname} (No IP)",
+        "tooltip-format-wifi": "{essid} {icon} {signalStrength}%",
+        "tooltip-format-ethernet": "{ifname} 󰌘",
+        "tooltip-format-disconnected": "󰌙 Disconnected",
+        "max-length": 30,
+        "min-length": 20,
+        "format-icons": [
+            "󰤯",
+            "󰤟",
+            "󰤢",
+            "󰤥",
+            "󰤨"
+        ]
     },
     "tray": {
         "icon-size": 18,
