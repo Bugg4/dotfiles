@@ -4,11 +4,17 @@
 @import url("colors.css");
 
 * {
+    /* Reset some default styles */
+    margin: 0;
+    padding: 0;
+}
+
+* {
     /* Set the default font for the bar */
     font-family: "Noto Sans", FontAwesome, sans-serif;
     font-size: 14px;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
 }
 
 window#waybar {

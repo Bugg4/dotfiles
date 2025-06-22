@@ -2,8 +2,8 @@
 {
     // General Waybar configuration
     "layer": "top", // Force Waybar to be on top of other windows
-    "position": "top", // Position Waybar at the top of the screen
-    "height": 35, // Define the height of the bar
+    "position": "bottom", // Position Waybar at the top of the screen
+    "height": 40, // Define the height of the bar (increased to fit the 3-line clock)
     // Module ordering
     "modules-left": [], // No modules on the left
     "modules-center": [
@@ -40,9 +40,9 @@
     },
     // Configuration for the Network module
     "network": {
-        // The ':>9' pads the output to 9 characters, preventing size changes.
-        "format-wifi": " {essid} {bandwidthDownBytes:>9} {bandwidthUpBytes:>9}",
-        "format-ethernet": " {bandwidthDownBytes:>9} {bandwidthUpBytes:>9}",
+        // Pads the output to 9 characters with leading zeros to prevent size changes. Corrected format specifier.
+        "format-wifi": " {essid} {bandwidthDownBytes:09} {bandwidthUpBytes:09}",
+        "format-ethernet": " {bandwidthDownBytes:09} {bandwidthUpBytes:09}",
         "format-disconnected": "⚠ Disconnected",
         "tooltip-format": "{ifname} via {gwaddr} ",
         "interval": 1, // Update every second
@@ -50,14 +50,11 @@
     },
     // Configuration for the Volume (Pulseaudio) module
     "pulseaudio": {
-        "format": "{volume}% {icon}", // Shows: 50% 
+        "format": "{icon} {volume}%", // Shows: 50% 
         "format-muted": " Muted",
         "on-click": "pavucontrol", // Opens pavucontrol on click
-        "on-scroll-up": "pactl set-sink-volume @DEFAULT_SINK@ +5%",
-        "on-scroll-down": "pactl set-sink-volume @DEFAULT_SINK@ -5%",
-        "scroll-step": 5,
         "tooltip": true,
-        "tooltip-format": "{desc} ({volume}%)", // Show device description and volume on hover
+        "tooltip-format": "{desc}", // Show device description and volume on hover
         "format-icons": {
             "headphone": "",
             "hands-free": "",
@@ -75,7 +72,7 @@
     // Configuration for the Clock module
     "clock": {
         // Using Pango markup with explicit argument index '0' to prevent parsing errors.
-        "format": "<span font_style='italic' weight='light'>{0:%A}</span>\n<b>{0:%d/%m/%y}</b>\n<span font_family='Noto Sans Mono'>{0:%H:%M:%S}</span>",
+        "format": "<span font_style='italic' weight='light'>{0:%A}</span> <b>{0:%d/%m/%y}</b> <span font_family='Noto Sans Mono'>{0:%H:%M:%S}</span>",
         "locale": "it_IT.UTF-8", // Use Italian for day names
         "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
         "interval": 1 // Update every second
