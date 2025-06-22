@@ -15,7 +15,7 @@ def format_speed(speed_bytes):
         speed = f"{speed_bytes / 1024:5.1f} KB/s"
     else:
         # Bytes per second
-        speed = f"{speed_bytes:5.1f} B/s"
+        speed = f"{speed_bytes:5.1f}  B/s"
     return speed
 
 
