@@ -7,6 +7,7 @@
     /* Reset some default styles */
     margin: 0;
     padding: 0;
+    color: @foreground;
 }
 
 * {
@@ -19,10 +20,8 @@
 
 window#waybar {
     /* Use colors from the imported colors.css */
-    background-color: @theme_bg_color;
-    color: @theme_fg_color;
-    transition-property: background-color;
-    transition-duration: .5s;
+    background-color: transparent;
+    color: @foreground;
     border-radius: 0;
     /* No radius for the bar itself */
 }
@@ -34,14 +33,12 @@ window#waybar {
 #network {
     padding: 0 10px;
     margin: 5px 3px;
-    background-color: @theme_selected_bg_color;
-    color: @theme_selected_fg_color;
+    background-color: @background;
 }
 
 #workspaces button {
     padding: 0 5px;
     background-color: transparent;
-    color: @theme_fg_color;
     border-radius: 4px;
     transition: all 0.3s ease;
 }
@@ -53,8 +50,7 @@ window#waybar {
 }
 
 #workspaces button.focused {
-    background-color: @accent;
-    color: @theme_bg_color;
+    background-color: @color0;
 }
 
 #workspaces button.urgent {

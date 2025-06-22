@@ -50,7 +50,7 @@
     },
     // Configuration for the Volume (Pulseaudio) module
     "pulseaudio": {
-        "format": "{icon} {volume}%", // Shows: 50% 
+        "format": "{icon} volume}%", // Shows: 50% 
         "format-muted": " Muted",
         "on-click": "pavucontrol", // Opens pavucontrol on click
         "tooltip": true,
