@@ -1,34 +1,70 @@
+// ~/.config/waybar/config
 {
-    "layer": "top", // display on top of all windows
-    "position": "bottom", // position of the bar
-    "height": 40,
-    // Using margin-bottom with a negative value in order to reduce the space between Hyprland window and waybar
-    "margin-bottom": 10,
-    "margin-top": -5,
-    "margin-left": 0,
-    "margin-right": 0,
-    "spacing": 0, // spacing between modules
-    "reload_style_on_change": true, // reload style on CSS change
-    "modules-left": [
-        "custom/launcher",
-        "cpu",
-        "memory",
-        "tray"
-    ],
-    "modules-center": [],
+    // General Waybar configuration
+    "layer": "top", // Force Waybar to be on top of other windows
+    "position": "top", // Position Waybar at the top of the screen
+    "height": 35, // Define the height of the bar
+    // Module ordering
+    "modules-left": [], // No modules on the left
+    "modules-center": [
+        "hyprland/workspaces"
+    ], // Workspaces in the center
     "modules-right": [
-        "network#speed",
+        "network",
         "pulseaudio",
         "clock"
-        // "custom/power"
-    ],
-    "pulseaudio": {
-        "tooltip": true,
-        "scroll-step": 5,
-        "format": "{icon} {volume}%",
-        "format-muted": "{icon} {volume}%",
-        "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+    ], // Modules on the right, in this order
+    // Configuration for the Workspaces module
+    // This example uses hyprland/workspaces. If you use Sway, change this to "sway/workspaces".
+    "hyprland/workspaces": {
+        "format": "{icon}", // Display an icon for each workspace
+        "on-click": "activate", // Switch to workspace on click
+        "all-outputs": true, // Show workspaces on all monitors
+        "persistent-workspaces": {
+            "1": [],
+            "2": [],
+            "3": [],
+            "4": [],
+            "5": []
+        },
         "format-icons": {
+            "1": "",
+            "2": "",
+            "3": "",
+            "4": "",
+            "5": "",
+            "urgent": "",
+            "focused": "",
+            "default": ""
+        }
+    },
+    // Configuration for the Network module
+    "network": {
+        // The ':>9' pads the output to 9 characters, preventing size changes.
+        "format-wifi": " {essid} {bandwidthDownBytes:>9} {bandwidthUpBytes:>9}",
+        "format-ethernet": " {bandwidthDownBytes:>9} {bandwidthUpBytes:>9}",
+        "format-disconnected": "⚠ Disconnected",
+        "tooltip-format": "{ifname} via {gwaddr} ",
+        "interval": 1, // Update every second
+        "max-length": 50
+    },
+    // Configuration for the Volume (Pulseaudio) module
+    "pulseaudio": {
+        "format": "{volume}% {icon}", // Shows: 50% 
+        "format-muted": " Muted",
+        "on-click": "pavucontrol", // Opens pavucontrol on click
+        "on-scroll-up": "pactl set-sink-volume @DEFAULT_SINK@ +5%",
+        "on-scroll-down": "pactl set-sink-volume @DEFAULT_SINK@ -5%",
+        "scroll-step": 5,
+        "tooltip": true,
+        "tooltip-format": "{desc} ({volume}%)", // Show device description and volume on hover
+        "format-icons": {
+            "headphone": "",
+            "hands-free": "",
+            "headset": "",
+            "phone": "",
+            "portable": "",
+            "car": "",
             "default": [
                 "",
                 "",
@@ -36,59 +72,12 @@
             ]
         }
     },
-    "network#speed": {
-        "interval": 1,
-        "format": "{ifname}",
-        "format-wifi": "{icon} {bandwidthDownBytes}  {bandwidthUpBytes} ",
-        "format-ethernet": "{icon} {bandwidthDownBytes}  {bandwidthUpBytes} ",
-        "format-disconnected": "󰌙",
-        "tooltip-format": "{ipaddr}",
-        "format-linked": "󰈁 {ifname} (No IP)",
-        "tooltip-format-wifi": "{essid} {icon} {signalStrength}%",
-        "tooltip-format-ethernet": "{ifname} 󰌘",
-        "tooltip-format-disconnected": "󰌙 Disconnected",
-        "max-length": 30,
-        "min-length": 20,
-        "format-icons": [
-            "󰤯",
-            "󰤟",
-            "󰤢",
-            "󰤥",
-            "󰤨"
-        ]
-    },
-    "tray": {
-        "icon-size": 18,
-        "spacing": 10
-    },
+    // Configuration for the Clock module
     "clock": {
-        "interval": 1,
-        "format": "{:%H:%M:%S}"
-    },
-    "cpu": {
-        "interval": 1,
-        "format": " {}%",
-        "max-length": 10
-    },
-    "memory": {
-        "interval": 1,
-        "format": " {}%",
-        "max-length": 10
-    },
-    "custom/launcher": {
-        "format": "",
-        "on-click": "wofi --show drun",
-        "on-click-right": "killall wofi"
-    },
-    "custom/power": {
-        "format": " ",
-        "on-click": "wlogout"
-    },
-    // The code following below is given in the great documentation for Waybar status bar under Useful Utilities in Hyprland wiki
-    "hyrpland/workspaces": {
-        "format": "{icon}",
-        "on-scroll-up": "hyprctl dispatch workspace e+1",
-        "on-scroll-down": "hyprctl dispatch workspace e-1",
-        "on-click": "activate"
+        // Using Pango markup with explicit argument index '0' to prevent parsing errors.
+        "format": "<span font_style='italic' weight='light'>{0:%A}</span>\n<b>{0:%d/%m/%y}</b>\n<span font_family='Noto Sans Mono'>{0:%H:%M:%S}</span>",
+        "locale": "it_IT.UTF-8", // Use Italian for day names
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+        "interval": 1 // Update every second
     }
 }
