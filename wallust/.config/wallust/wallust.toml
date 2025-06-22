@@ -51,3 +51,4 @@ threshold = 10
 hyprland = { template = 'hyprland.wallust', target = '~/.config/hypr/colors.conf' }
 alacritty = { template = 'alacritty.wallust', target = '~/.config/alacritty/colors.toml' }
 dunst = { template = 'dunst.wallust', target = '~/.config/dunst/dunstrc' }
+waybar = { template = 'waybar.wallust', target = '~/.config/waybar/wallust_colors.css' }
