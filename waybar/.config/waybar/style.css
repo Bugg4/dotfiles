@@ -12,7 +12,7 @@
 
 * {
     /* Set the default font for the bar */
-    font-family: "Noto Sans", FontAwesome, sans-serif;
+    font-family: "Noto Sans", sans-serif;
     font-size: 14px;
     border: none;
     border-radius: 10px;
@@ -30,12 +30,11 @@ window#waybar {
 #workspaces,
 #clock,
 #pulseaudio,
-#network,
 #custom-network {
     font-family: "Noto Sans Mono";
     padding: 0 10px;
     margin: 5px 3px;
-    background-color: @background;
+    background-color: @color2;
 }
 
 #workspaces button {
@@ -57,9 +56,4 @@ window#waybar {
 
 #workspaces button.urgent {
     background-color: @warning;
-}
-
-/* Set a minimum width on the network module to prevent resizing */
-#network {
-    min-width: 250px;
 }

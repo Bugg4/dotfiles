@@ -4,6 +4,9 @@
     "layer": "top", // Force Waybar to be on top of other windows
     "position": "bottom", // Position Waybar at the top of the screen
     "height": 40, // Define the height of the bar (increased to fit the 3-line clock)
+    "margin-right": 5,
+    "margin-top": -5, // No margin around the bar
+    "margin-bottom": 5, // No margin around the bar
     // Module ordering
     "modules-left": [], // No modules on the left
     "modules-center": [
