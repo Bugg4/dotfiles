@@ -30,7 +30,9 @@ window#waybar {
 #workspaces,
 #clock,
 #pulseaudio,
-#network {
+#network,
+#custom-network {
+    font-family: "Noto Sans Mono";
     padding: 0 10px;
     margin: 5px 3px;
     background-color: @background;

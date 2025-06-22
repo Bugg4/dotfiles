@@ -4,40 +4,51 @@ import psutil
 import time
 import sys
 
+
 def format_speed(speed_bytes):
-    """Formats speed in bytes to a human-readable string with units, padded with zeros."""
-    if speed_bytes > 1024 * 1024:
-        # Megabytes per second
-        speed = f"{speed_bytes / (1024*1024):>5.1f} M"
-    elif speed_bytes > 1024:
+    """Formats speed in bytes to a ###.# B/s format, padded with leading zeros."""
+    if speed_bytes >= 1024 * 1024:
+
+        speed = f"{speed_bytes / (1024*1024):5.1f} MB/s"
+    elif speed_bytes >= 1024:
         # Kilobytes per second
-        speed = f"{speed_bytes / 1024:>5.1f} K"
+        speed = f"{speed_bytes / 1024:5.1f} KB/s"
     else:
         # Bytes per second
-        speed = f"{speed_bytes:>5.1f} B"
+        speed = f"{speed_bytes:5.1f} B/s"
     return speed
+
 
 def get_active_interface():
     """Finds the primary active network interface."""
     stats = psutil.net_if_stats()
-    # Prioritize Ethernet, then Wi-Fi, then others
     for iface in ["en", "eth", "wlan", "wlp", "wifi"]:
         for name, data in stats.items():
             if name.startswith(iface) and data.isup:
                 return name
-    # Fallback to any active interface
     for name, data in stats.items():
         if data.isup and name != "lo":
             return name
     return None
 
+
 def main():
     """
     Calculates network speed and prints it as a JSON object for Waybar.
     """
-    # Initialize with current counter values
-    last_io = psutil.net_io_counters()
-    time.sleep(1) # Wait a second for the first measurement
+
+    try:
+        last_io = psutil.net_io_counters()
+    except Exception as e:
+        print(
+            json.dumps(
+                {"text": "⚠ Error", "tooltip": f"Initial psutil call failed: {e}"}
+            ),
+            flush=True,
+        )
+        sys.exit(1)
+
+    time.sleep(1)  # Wait a second for the first measurement
 
     while True:
         try:
@@ -55,7 +66,10 @@ def main():
             # Get active interface information
             interface = get_active_interface()
             if not interface:
-                output_data = {"text": "⚠ Disconnected", "tooltip": "No active network interface"}
+                output_data = {
+                    "text": "⚠ Disconnected",
+                    "tooltip": "No active network interface",
+                }
             else:
                 # Prepare the output text with icons
                 text = f" {download_speed}  {upload_speed}"
@@ -76,6 +90,6 @@ def main():
             print(json.dumps({"text": "⚠ Error", "tooltip": str(e)}), flush=True)
             time.sleep(1)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
-s

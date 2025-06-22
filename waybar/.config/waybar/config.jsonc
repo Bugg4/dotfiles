@@ -10,7 +10,7 @@
         "hyprland/workspaces"
     ], // Workspaces in the center
     "modules-right": [
-        "network",
+        "custom/network",
         "pulseaudio",
         "clock"
     ], // Modules on the right, in this order
@@ -39,7 +39,7 @@
         }
     },
     // Configuration for the Network module
-    "network": {
+    /*   "network": {
         // Pads the output to 9 characters with leading zeros to prevent size changes. Corrected format specifier.
         "format-wifi": " {essid} {bandwidthDownBytes:09} {bandwidthUpBytes:09}",
         "format-ethernet": " {bandwidthDownBytes:09} {bandwidthUpBytes:09}",
@@ -48,9 +48,19 @@
         "interval": 1, // Update every second
         "max-length": 50
     },
-    // Configuration for the Volume (Pulseaudio) module
+    */
+    // Custom Network Module Configuration
+    "custom/network": {
+        // Path to the custom script
+        "exec": "~/.config/waybar/waybar-network.py",
+        // The script outputs JSON, so we specify which key to display.
+        "format": "{text}",
+        "return-type": "json",
+        // Set a minimum width in the CSS file if you still need it
+        "max-length": 50
+    },
     "pulseaudio": {
-        "format": "{icon} volume}%", // Shows: 50% 
+        "format": "{icon} {volume}%", // Shows: 50% 
         "format-muted": " Muted",
         "on-click": "pavucontrol", // Opens pavucontrol on click
         "tooltip": true,
