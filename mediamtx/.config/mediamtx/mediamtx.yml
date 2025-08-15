@@ -1,0 +1,6 @@
+# THIS IS A BAD CONFIGURATION - DO NOT USE
+paths:
+  all:
+    # this is the path you added
+    source: record
+    recordPath: /home/marco/downloads/

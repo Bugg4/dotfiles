@@ -13,6 +13,7 @@
         "hyprland/workspaces"
     ], // Workspaces in the center
     "modules-right": [
+        "tray",
         "custom/network",
         "pulseaudio",
         "clock"
@@ -31,11 +32,11 @@
             "5": []
         },
         "format-icons": {
-            "1": "",
-            "2": "",
-            "3": "",
-            "4": "",
-            "5": "",
+            "1": "1",
+            "2": "2",
+            "3": "3",
+            "4": "4",
+            "5": "5",
             "urgent": "",
             "focused": "",
             "default": ""
@@ -81,6 +82,11 @@
                 ""
             ]
         }
+    },
+    "tray": {
+        "icon-size": 25,
+        "spacing": 10,
+        "icons": {}
     },
     // Configuration for the Clock module
     "clock": {

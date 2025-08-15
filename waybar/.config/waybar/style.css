@@ -30,7 +30,8 @@ window#waybar {
 #workspaces,
 #clock,
 #pulseaudio,
-#custom-network {
+#custom-network,
+#tray{
     font-family: "Noto Sans Mono";
     padding: 0 10px;
     margin: 5px 3px;
@@ -40,14 +41,11 @@ window#waybar {
 #workspaces button {
     padding: 0 5px;
     background-color: transparent;
-    border-radius: 4px;
-    transition: all 0.3s ease;
 }
 
 #workspaces button:hover {
-    background-color: rgba(0, 0, 0, 0.2);
-    box-shadow: inherit;
-    text-shadow: inherit;
+    background-color: @foreground;
+    color: @background;
 }
 
 #workspaces button.focused {

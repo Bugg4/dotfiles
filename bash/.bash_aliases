@@ -6,12 +6,15 @@ alias btop='btop -u 100'
 alias todo='micro $HOME/todo.md'
 
 # git
-alias gs="git status"
-alias gl="git log"
-alias ga="git add"
-alias gall="git add ."
-alias gca="git commit -a"
-alias gc="git commit -m"
+alias gs='git status'
+alias gl='git log'
+alias ga='git add'
+alias gall='git add .'
+alias gca='git commit -a'
+alias gc='git commit -m'
+alias gb='git branch'
+alias gsb='git checkout $(git branch | fzf)'
+
 
 # confirmation
 alias mv='mv -i'
