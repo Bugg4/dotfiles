@@ -1,4 +1,5 @@
 [mgr]
 prepend_keymap = [
-    { on = "<C-c>", run = "yank", desc = "Single command with `Ctrl + a`" },
+    { on = "<C-c>", run = "yank", desc = "Copy with Ctrl+c" },
+
 ]
