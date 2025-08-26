@@ -14,3 +14,18 @@ fzf-aliases-functions() {
     eval "$CMD"
   fi
 }
+
+function fzf-env-vars() {
+  local out
+  out=$(env | fzf)
+  echo $(echo $out | cut -d= -f2)
+}
+
+# fuzzy cd
+function fcd() {
+  local dir
+  dir=$(find ${1:-.} -path '*/\.*' -prune \
+                  -o -type d -print 2> /dev/null | fzf +m) &&
+  cd "$dir"
+  ls
+}

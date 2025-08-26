@@ -12,7 +12,8 @@ export DOWNLOADS_DIR=$HOME/downloads
 export TERM=alacritty
 
 # default editor
-export EDITOR=code
+export VISUAL=code
+export EDITOR="${VISUAL}"
 
 # hint electron apps to use Wayland
 export ELECTRON_OZONE_PLATFORM_HINT=wayland

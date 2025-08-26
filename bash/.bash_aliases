@@ -7,6 +7,7 @@ alias todo='micro $HOME/todo.md'
 
 # quich sourcing
 alias sourcebash='source ${HOME}/.bashrc && printf "${HOME}/.bashrc sourced!\n"'
+alias sourceprofile='source ${HOME}/.bash_profile && printf "${HOME}/.bash_profile sourced!\n"'
 
 # git
 alias gs='git status'
