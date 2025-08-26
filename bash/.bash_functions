@@ -21,11 +21,26 @@ function fzf-env-vars() {
   echo $(echo $out | cut -d= -f2)
 }
 
-# fuzzy cd
+# fuzzy cd (no hidden dirs)
 function fcd() {
   local dir
   dir=$(find ${1:-.} -path '*/\.*' -prune \
                   -o -type d -print 2> /dev/null | fzf +m) &&
   cd "$dir"
   ls
+}
+
+# fuzzy cd, include hidden dirs
+function fcda() {
+  local dir
+  dir=$(find ${1:-.} -type d 2> /dev/null | fzf +m) && cd "$dir"
+  ls
+}
+
+# fuzzy find file and cd to it
+function fcdf() {
+   local file
+   local dir
+   file=$(fzf +m -q "$1") && dir=$(dirname "$file") && cd "$dir"
+   ls
 }
