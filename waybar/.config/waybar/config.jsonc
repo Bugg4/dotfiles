@@ -55,12 +55,10 @@
     */
     // Custom Network Module Configuration
     "custom/network": {
-        // Path to the custom script
         "exec": "~/.config/waybar/waybar-network.py",
-        // The script outputs JSON, so we specify which key to display.
         "format": "{text}",
         "return-type": "json",
-        // Set a minimum width in the CSS file if you still need it
+        "on-click": "~/.config/waybar/waybar-network.py --select",
         "max-length": 50
     },
     "pulseaudio": {
