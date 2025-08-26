@@ -11,6 +11,9 @@ export DOWNLOADS_DIR=$HOME/downloads
 # default terminal emulator
 export TERM=alacritty
 
+# default editor
+export EDITOR=code
+
 # hint electron apps to use Wayland
 export ELECTRON_OZONE_PLATFORM_HINT=wayland
 
