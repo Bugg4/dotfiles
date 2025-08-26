@@ -19,6 +19,11 @@ if [ -f "$HOME/.bash_aliases" ]; then
    source "$HOME/.bash_aliases"
 fi
 
+# bash functions file
+if [ -f "$HOME/.bash_functions" ]; then
+   source "$HOME/.bash_functions"
+fi
+
 # init zoxide
 eval "$(zoxide init bash)"
 
@@ -36,3 +41,4 @@ source /usr/share/nvm/init-nvm.sh
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+

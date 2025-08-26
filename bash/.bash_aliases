@@ -5,6 +5,9 @@ alias yt='yt-dlp'
 alias btop='btop -u 100'
 alias todo='micro $HOME/todo.md'
 
+# quich sourcing
+alias sourcebash='source ${HOME}/.bashrc && printf "${HOME}/.bashrc sourced!\n"'
+
 # git
 alias gs='git status'
 alias gl='git log'
