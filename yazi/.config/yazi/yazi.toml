@@ -14,6 +14,9 @@ wrap = "no"
 tab_size = 2
 image_filer = "lanczos3"
 image_quality = 90
+
+# uinstalled uerberzug for now.
+# if you want to retry, reinstall with pacman -Syu ueberzugpp
 # ueberzug_scale  = 1
 # ueberzug_offset = [ 0, 0, 0, 0 ]
 
