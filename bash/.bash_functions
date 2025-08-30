@@ -44,3 +44,9 @@ function fcdf() {
    file=$(fzf +m -q "$1") && dir=$(dirname "$file") && cd "$dir"
    ls
 }
+
+function qr() {
+	local input
+	input=${1}
+	qrencode -t UTF8 -o - "$input"
+}
