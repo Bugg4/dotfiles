@@ -45,8 +45,15 @@ function fcdf() {
    ls
 }
 
-function qr() {
-	local input
-	input=${1}
-	qrencode -t UTF8 -o - "$input"
+qr() {
+    local input
+    if [[ -n "$1" ]]; then
+        # If an argument is provided, use it
+        input="$*"
+    else
+        # Otherwise read from stdin
+        input="$(cat)"
+    fi
+
+    qrencode -t UTF8 -o - "$input"
 }
