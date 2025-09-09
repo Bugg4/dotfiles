@@ -4,6 +4,7 @@ alias stow='stow --verbose --dir=${HOME}/dotfiles/ --target=${HOME}/'
 alias yt='yt-dlp'
 alias btop='btop -u 100'
 alias todo='micro $HOME/todo.md'
+alias bloat='sudo du -sh * | sort -h'
 
 # quich sourcing
 alias sourcebash='source ${HOME}/.bashrc && printf "${HOME}/.bashrc sourced!\n"'
