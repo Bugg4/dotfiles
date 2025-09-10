@@ -10,6 +10,14 @@ alias bloat='sudo du -sh * | sort -h'
 alias sourcebash='source ${HOME}/.bashrc && printf "${HOME}/.bashrc sourced!\n"'
 alias sourceprofile='source ${HOME}/.bash_profile && printf "${HOME}/.bash_profile sourced!\n"'
 
+# directories
+alias cd-wine-runners='cd $HOME/.local/share/wine/runners'
+alias cd-wine-prefixes='cd $HOME/.local/share/wine/prefixes'
+
+# wine
+alias wine-ew-affinity='rum ElementalWarriorWine-x86_64 $HOME/.local/share/wine/prefixes/affinity/'
+
+
 # git
 alias gs='git status'
 alias gl='git log'
