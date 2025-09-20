@@ -3,4 +3,128 @@ inode/directory=thunar.desktop;
 image/png=imv.desktop;
 image/svg+xml=org.inkscape.Inkscape.desktop;
 image/vnd.adobe.photoshop=7zFM.desktop;
-text/plain=code.desktop
+text/plain=code.desktop;
+
+[Default Applications]
+
+# ----------
+# FILESYSTEM
+# ----------
+
+inode/directory=thunar.desktop;
+
+
+# ----------
+# PLAINTEXT
+# ----------
+
+text/x-csrc=code.desktop
+text/x-c++src=code.desktop
+text/x-shellscript=code.desktop
+application/json=code.desktop
+application/xml=code.desktop
+
+
+# ------
+# IMAGES
+# ------
+
+image/avif=imv.desktop
+image/gif=imv.desktop
+image/heif=imv.desktop
+image/jpeg=imv.desktop
+image/jpg=imv.desktop
+image/pjpeg=imv.desktop
+image/png=imv.desktop
+image/svg+xml=imv.desktop
+image/svg+xml-compressed=imv.desktop
+image/tiff=imv.desktop
+image/vnd.rn-realpix=imv.desktop
+image/webp=imv.desktop
+image/x-bmp=imv.desktop
+image/x-emf=imv.desktop
+image/x-eps=imv.desktop
+image/x-pcx=imv.desktop
+image/x-png=imv.desktop
+image/x-portable-anymap=imv.desktop
+image/x-portable-bitmap=imv.desktop
+image/x-portable-graymap=imv.desktop
+image/x-portable-pixmap=imv.desktop
+image/x-tga=imv.desktop
+image/x-vsd=imv.desktop
+image/x-wmf=imv.desktop
+image/x-xbitmap=imv.desktop
+image/x-xcdr=imv.desktop
+
+# ------
+# VIDEOS
+# ------
+
+video/3gp=mpv.desktop
+video/3gpp=mpv.desktop
+video/3gpp2=mpv.desktop
+video/avi=mpv.desktop
+video/divx=mpv.desktop
+video/dv=mpv.desktop
+video/fli=mpv.desktop
+video/flv=mpv.desktop
+video/mkv=mpv.desktop
+video/mp2t=mpv.desktop
+video/mp4=mpv.desktop
+video/mp4v-es=mpv.desktop
+video/mpeg=mpv.desktop
+video/mpeg-system=mpv.desktop
+video/msvideo=mpv.desktop
+video/ogg=mpv.desktop
+video/quicktime=mpv.desktop
+video/vnd.avi=mpv.desktop
+video/vnd.divx=mpv.desktop
+video/vnd.mpegurl=mpv.desktop
+video/vnd.rn-realvide=mpv.desktop
+video/webm=mpv.desktop
+video/x-anim=mpv.desktop
+video/x-avi=mpv.desktop
+video/x-flc=mpv.desktop
+video/x-fli=mpv.desktop
+video/x-flic=mpv.desktop
+video/x-flv=mpv.desktop
+video/x-m4v=mpv.desktop
+video/x-matroska=mpv.desktop
+video/x-matroska-3d=mpv.desktop
+video/x-mpeg=mpv.desktop
+video/x-mpeg2=mpv.desktop
+video/x-mpeg3=mpv.desktop
+video/x-mpeg-system=mpv.desktop
+video/x-ms-afs=mpv.desktop
+video/x-ms-asf=mpv.desktop
+video/x-ms-asf-plugin=mpv.desktop
+video/x-ms-asx=mpv.desktop
+video/x-msvideo=mpv.desktop
+video/x-ms-wm=mpv.desktop
+video/x-ms-wmv=mpv.desktop
+video/x-ms-wmx=mpv.desktop
+video/x-ms-wvx=mpv.desktop
+video/x-ms-wvxvideo=mpv.desktop
+video/x-nsv=mpv.desktop
+video/x-ogm=mpv.desktop
+video/x-ogm+ogg=mpv.desktop
+video/x-theora=mpv.desktop
+video/x-theora+ogg=mpv.desktop
+
+# -----
+# AUDIO
+# -----
+
+audio/aac=mpv.desktop
+audio/flac=mpv.desktop
+audio/midi=mpv.desktop
+audio/mp4=mpv.desktop
+audio/mpeg=mpv.desktop
+audio/ogg=mpv.desktop
+audio/opus=mpv.desktop
+audio/wav=mpv.desktop
+audio/webm=mpv.desktop
+audio/x-aiff=mpv.desktop
+audio/x-matroska=mpv.desktop
+audio/x-ms-wma=mpv.desktop
+audio/x-wav=mpv.desktop
