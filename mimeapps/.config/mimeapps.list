@@ -1,9 +1,9 @@
 [Added Associations]
-inode/directory=7zFM.desktop;
+inode/directory=thunar.desktop;
 image/png=imv.desktop;
 image/svg+xml=org.inkscape.Inkscape.desktop;
 image/vnd.adobe.photoshop=7zFM.desktop;
-text/plain=Alacritty.desktop;micro.desktop;
+text/plain=code.desktop
 
 [Default Applications]
 image/vnd.adobe.photoshop=7zFM.desktop
