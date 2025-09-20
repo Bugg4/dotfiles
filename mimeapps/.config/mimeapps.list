@@ -1,0 +1,9 @@
+[Added Associations]
+inode/directory=7zFM.desktop;
+image/png=imv.desktop;
+image/svg+xml=org.inkscape.Inkscape.desktop;
+image/vnd.adobe.photoshop=7zFM.desktop;
+text/plain=Alacritty.desktop;micro.desktop;
+
+[Default Applications]
+image/vnd.adobe.photoshop=7zFM.desktop
