@@ -3,7 +3,7 @@
 # exists.
 
 # set user dictories
-export SCREENSHOTS_DIR=$HOME/screenshots
+export SCREENSHOTS_DIR=$HOME/images/screenshots
 export DOCUMENTS_DIR=$HOME/documents
 export SCRIPTS_DIR=$HOME/scripts
 export DOWNLOADS_DIR=$HOME/downloads

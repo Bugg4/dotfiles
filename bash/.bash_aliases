@@ -5,6 +5,7 @@ alias yt='yt-dlp'
 alias btop='btop -u 100'
 alias todo='micro $HOME/todo.md'
 alias bloat='sudo du -sh * | sort -h'
+alias music='mpv "$(find /mnt/WIN_D/Musica/ | fzf)"'
 
 # quick sourcing
 alias sourcebash='source ${HOME}/.bashrc && printf "${HOME}/.bashrc sourced!\n"'
