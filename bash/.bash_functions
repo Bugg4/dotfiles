@@ -78,3 +78,23 @@ extract() {
     echo "'$1' is not a valid file"
   fi
 }
+
+b64decode() {
+    local input
+
+    if [[ -n "$1" ]]; then
+        input="$1"
+    else
+        input="$(cat)"
+    fi
+
+    decoded="$(echo -n "$input" | base64 --decode 2>/dev/null)"
+    if [[ $? -ne 0 ]]; then
+        echo "Error: invalid base64 input" >&2
+        return 1
+    fi
+
+    echo -n "$decoded"
+    echo -n "$decoded" | wl-copy
+}
+
