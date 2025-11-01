@@ -29,7 +29,7 @@ alias gadd='git add'
 alias gc='git commit -m'
 alias gb='git branch'
 alias gsb='git checkout $(git branch | fzf)'
-
+alias gor='git-open-remote.sh'
 
 # confirmation
 alias mv='mv -i'
