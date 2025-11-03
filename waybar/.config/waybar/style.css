@@ -4,26 +4,32 @@
 @import url("wallust_colors.css");
 
 * {
-    /* Reset some default styles */
-    margin: 0;
-    padding: 0;
-    color: @foreground;
+  /* Reset some default styles */
+  margin: 0;
+  padding: 0;
+  color: @background;
+
+  /* Set the default font for the bar */
+  font-family: "Noto Sans Mono", sans-serif;
+  font-size: 14px;
+  border: none;
+  border-radius: 10px;
 }
 
-* {
-    /* Set the default font for the bar */
-    font-family: "Noto Sans", sans-serif;
-    font-size: 14px;
-    border: none;
-    border-radius: 10px;
+tooltip {
+  background: @background;
+  border: 1px solid @color2;
+}
+
+tooltip label {
+  color: @foreground;
 }
 
 window#waybar {
-    /* Use colors from the imported colors.css */
-    background-color: transparent;
-    color: @foreground;
-    border-radius: 0;
-    /* No radius for the bar itself */
+  /* Use colors from the imported colors.css */
+  background-color: transparent;
+  color: @foreground;
+  border-radius: 0; /* No radius for the bar itself */
 }
 
 /* Style for all modules */
@@ -31,27 +37,33 @@ window#waybar {
 #clock,
 #pulseaudio,
 #custom-network,
-#tray{
-    font-family: "Noto Sans Mono";
-    padding: 0 10px;
-    margin: 5px 3px;
-    background-color: @color2;
+#tray {
+  padding: 0 10px;
+  margin: 5px 3px;
+  background-color: @color2;
 }
 
 #workspaces button {
-    padding: 0 5px;
-    background-color: transparent;
+  padding: 0 5px;
+  background-color: transparent;
 }
 
 #workspaces button:hover {
-    background-color: @foreground;
-    color: @background;
+  background-color: @background;
+  color: @foreground;
+}
+
+#workspaces button.active {
+  background-color: @foreground; /* or any color you want */
+  color: @background;
+  font-weight: bold;
+  border-radius: 10px; /* optional for visual distinction */
 }
 
 #workspaces button.focused {
-    background-color: @color0;
+  background-color: @color3;
 }
 
 #workspaces button.urgent {
-    background-color: @warning;
+  background-color: @warning;
 }

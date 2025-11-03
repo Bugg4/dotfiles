@@ -42,17 +42,6 @@
             "default": ""
         }
     },
-    // Configuration for the Network module
-    /*   "network": {
-        // Pads the output to 9 characters with leading zeros to prevent size changes. Corrected format specifier.
-        "format-wifi": " {essid} {bandwidthDownBytes:09} {bandwidthUpBytes:09}",
-        "format-ethernet": " {bandwidthDownBytes:09} {bandwidthUpBytes:09}",
-        "format-disconnected": "⚠ Disconnected",
-        "tooltip-format": "{ifname} via {gwaddr} ",
-        "interval": 1, // Update every second
-        "max-length": 50
-    },
-    */
     // Custom Network Module Configuration
     "custom/network": {
         "exec": "~/.config/waybar/waybar-network.py",
