@@ -8,6 +8,7 @@ alias bloat='sudo du -sh * | sort -h'
 alias music='mpv "$(find /mnt/WIN_D/Musica/ | fzf)"'
 alias ffmpeg='ffmpeg -hide_banner'
 alias reflector-refresh='sudo reflector --verbose --protocol https --country Italy,Switzerland,France,Germany --latest 16 --sort rate --save /etc/pacman.d/mirrorlist && cat /etc/pacman.d/mirrorlist'
+alias kp='kp /home/marco/documents/keepass/keepass.kdbx'
 
 # quick sourcing
 alias sourcebash='source ${HOME}/.bashrc && printf "${HOME}/.bashrc sourced!\n"'
