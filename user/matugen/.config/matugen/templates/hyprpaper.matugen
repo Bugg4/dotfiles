@@ -1,2 +1,5 @@
-preload = {{image}}
-wallpaper = , {{image}}
+wallpaper {
+    monitor = DP-1
+    path = {{image}}
+    fit_mode = cover  
+}
