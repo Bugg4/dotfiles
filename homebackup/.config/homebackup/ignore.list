@@ -1,0 +1,18 @@
+# Folders
+.bun/
+.npm/_cacahe/
+.nvm/
+.cargo
+.rustup/
+chaiNNer/
+node_modules/
+downloads/
+.local/share/Steam/
+pnpm/
+.pnpm/
+
+# Patterns
+*cache*/
+*Cache*/
+code/**/target/
+BraveSoftware/Brave-Browser/Default/Service Worker/
