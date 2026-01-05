@@ -22,23 +22,23 @@
 live_config_reload = true
 import = ["~/.config/alacritty/colors.toml"]
 
-
 [window]
-
 opacity = 0.9
-
 padding.x = 10
 padding.y = 10
-
 decorations = "Full"
 decorations_theme_variant = "Dark"
 
 [font]
-
 normal.family = "Noto Sans Mono"
 bold.family = "Noto Sans Mono"
 italic.family = "Noto Sans Mono"
 bold_italic.family = "Noto Sans Mono"
+
+# normal.family = "NotoSansMono Nerd Font"
+# bold.family = "NotoSansMono Nerd Font"
+# italic.family = "NotoSansMono Nerd Font"
+# bold_italic.family = "NotoSansMono Nerd Font"
 
 size = 11
 
