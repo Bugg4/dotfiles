@@ -13,4 +13,7 @@
   <bind
      gaction="win.tool-toggle('Select')"
      keys="a" />
+  <bind
+     gaction="app.paste-size"
+     keys="&lt;Primary&gt;i" />
 </keys>
