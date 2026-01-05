@@ -15,7 +15,9 @@ alias sourcebash='source ${HOME}/.bashrc && printf "${HOME}/.bashrc sourced!\n"'
 alias sourceprofile='source ${HOME}/.bash_profile && printf "${HOME}/.bash_profile sourced!\n"'
 
 # configs
-alias dots='code $(find $HOME/dotfiles/ | fzf)'
+alias edots='$EDITOR $(dots ls-tree -r master --name-only | fzf)'
+alias dots='/usr/bin/git --git-dir=$HOME/.archdots/ --work-tree=/'
+alias lazydots='/usr/bin/lazygit --git-dir=$HOME/.archdots/ --work-tree=/'
 
 # directories
 alias cd-wine-runners='cd $HOME/.local/share/wine/runners'
