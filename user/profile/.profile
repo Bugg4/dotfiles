@@ -29,5 +29,5 @@ fi
 
 # Automatically launch Hyprland if not running in a graphical environment
 if [ -z "$DISPLAY" ] && [ "$XDG_VTNR" = 1 ]; then
-  exec Hyprland
+  exec start-hyprland
 fi
