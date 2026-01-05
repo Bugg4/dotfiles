@@ -19,9 +19,6 @@ if [ -f "$HOME/.bash_functions" ]; then
    source "$HOME/.bash_functions"
 fi
 
-# init zoxide
-eval "$(zoxide init bash)"
-
 # pnpm
 export PNPM_HOME="/home/marco/.local/share/pnpm"
 case ":$PATH:" in
