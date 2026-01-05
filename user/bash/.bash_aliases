@@ -1,6 +1,6 @@
 # generic
 alias ls='eza --color=auto --icons=auto --long --hyperlink --group-directories-first'
-alias stow='stow --verbose --dir=${HOME}/dotfiles/ --target=${HOME}/'
+alias stow-user='stow --verbose --dir=${HOME}/dotfiles/user/ --target=${HOME}/'
 alias yt='yt-dlp'
 alias btop='btop -u 100'
 alias todo='micro $HOME/todo.md'
