@@ -7,7 +7,7 @@ import subprocess
 import os
 
 # --- Configuration ---
-MENU_COMMAND = "wofi -d"
+MENU_COMMAND = "fuzzel -d"
 TEMP_FILE = "/tmp/waybar_network_selected_interface.tmp"
 # ---------------------
 
