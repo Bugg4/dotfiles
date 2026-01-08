@@ -1,0 +1,10 @@
+[colors]
+background = "{{background}}FF"
+text = "{{foreground}}FF"
+prompt = "{{color2}}FF"
+input = "{{foreground}}FF"
+match = "{{color3}}FF"
+selection = "{{color2}}FF"
+selection-text = "{{background}}FF"
+selection-match = "{{color7}}FF"
+border = "{{color2}}FF"
