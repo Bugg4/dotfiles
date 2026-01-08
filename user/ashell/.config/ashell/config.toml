@@ -1,0 +1,23 @@
+log_level = "warn"
+outputs = { Targets = ["eDP-1"] }
+position = "Bottom"
+app_launcher_cmd = "fuzzel"
+
+[appearance]
+font_name = "Noto Sans"
+scale_factor = 1.15
+style = "Islands"       # doc reports singualr 
+
+[workspaces]
+enable_workspace_filling = true
+
+[system_info]
+indicators = ["UploadSpeed", "DownloadSpeed", "Cpu", "Memory"]
+
+[clock]
+format = "%a %x %X"
+
+[modules]
+left = []
+center = ["Workspaces"]
+right = ["Tray", "SystemInfo", "Settings", "Clock"]
