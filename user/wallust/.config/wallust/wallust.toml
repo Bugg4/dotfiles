@@ -48,8 +48,9 @@ threshold = 10
 # target: ABSOLUTE path in which to place a file with generated templated values.
 # ¡ If either one is a directory, then both SHOULD be one. !
 # zathura = { template = 'zathura', target = '~/.config/zathura/zathurarc' }
-hyprland = { template = 'hyprland.wallust', target = '~/.config/hypr/colors.conf' }
-alacritty = { template = 'alacritty.wallust', target = '~/.config/alacritty/colors.toml' }
+hyprland = { template = 'hyprland.wallust', target = '~/.config/hypr/hyprland.colors.conf' }
+alacritty = { template = 'alacritty.wallust', target = '~/.config/alacritty/alacritty.colors.toml' }
 dunst = { template = 'dunst.wallust', target = '~/.config/dunst/dunstrc' }
-waybar = { template = 'waybar.wallust', target = '~/.config/waybar/wallust_colors.css' }
-ghostty = { template = 'ghostty.wallust', target = '~/.config/ghostty/colors.ghostty.conf' }
+waybar = { template = 'waybar.wallust', target = '~/.config/waybar/waybar.colors.css' }
+ghostty = { template = 'ghostty.wallust', target = '~/.config/ghostty/ghostty.colors.conf' }
+fuzzel = { template = 'fuzzel.wallust', target = '~/.config/fuzzel/fuzzel.colors.ini' }

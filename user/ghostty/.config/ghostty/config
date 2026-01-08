@@ -13,4 +13,4 @@ window-theme = dark
 
 shell-integration = bash
 
-config-file = ~/.config/ghostty/colors.ghostty.conf
+config-file = ~/.config/ghostty/ghostty.colors.conf

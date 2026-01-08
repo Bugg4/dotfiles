@@ -31,9 +31,9 @@ ignore_dbusclose = false
 force_xwayland = false
 
 # colors
-highlight = "#A557C8"
-separator_color= "#F7EBEE"
-background = "#0F1215"
+highlight = "#ECDD4B"
+separator_color= "#FFF5EE"
+background = "#140F0F"
 
 [experimental]
 per_monitor_dpi = false
