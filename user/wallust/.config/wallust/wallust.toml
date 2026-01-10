@@ -49,6 +49,7 @@ threshold = 10
 # ¡ If either one is a directory, then both SHOULD be one. !
 # zathura = { template = 'zathura', target = '~/.config/zathura/zathurarc' }
 hyprland = { template = 'hyprland.wallust', target = '~/.config/hypr/hyprland.colors.conf' }
+hyprpaper = { template = 'hyprpaper.wallust', target = '~/.config/hypr/hyprpaper.conf' }
 alacritty = { template = 'alacritty.wallust', target = '~/.config/alacritty/alacritty.colors.toml' }
 dunst = { template = 'dunst.wallust', target = '~/.config/dunst/dunstrc' }
 waybar = { template = 'waybar.wallust', target = '~/.config/waybar/waybar.colors.css' }
