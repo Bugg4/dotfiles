@@ -15,7 +15,7 @@
     "modules-right": [
         "tray",
         "custom/network",
-        "pulseaudio",
+        "group/audio",
         "clock"
     ], // Modules on the right, in this order
     // Configuration for the Workspaces module
@@ -42,12 +42,25 @@
             "default": ""
         }
     },
-    // Custom Network Module Configuration
+    "group/audio": {
+        "orientation": "horizontal",
+        "modules": [
+            "pulseaudio",
+            "custom/bluetooth-battery"
+        ]
+    },
     "custom/network": {
         "exec": "~/.config/waybar/waybar-network.py",
         "format": "{text}",
         "return-type": "json",
         "on-click": "~/.config/waybar/waybar-network.py --select",
+        "max-length": 50
+    },
+    "custom/bluetooth-battery": {
+        "exec": "~/.config/waybar/waybar-bt-battery.py",
+        "format": "{text}",
+        "return-type": "json",
+        "on-click": "~/.config/waybar/waybar-bt-battery.py --select",
         "max-length": 50
     },
     "pulseaudio": {

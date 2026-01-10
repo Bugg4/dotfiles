@@ -32,11 +32,31 @@ window#waybar {
   border-radius: 0; /* No radius for the bar itself */
 }
 
+#pulseaudio {
+  padding: 0px 10px 0px 10px; /* top | right | bottom | left */
+  margin: 5px 0px;
+  background-color: @color2;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 0px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 0px;
+}
+
+#custom-bluetooth-battery {
+  padding: 0px 10px 0px 0px; /* top | right | bottom | left */
+  margin: 5px 0px;
+  background-color: @color2;
+  border-top-left-radius: 0px;
+  border-top-right-radius: 10px;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 10px;
+}
+
 /* Style for all modules */
 #workspaces,
 #clock,
-#pulseaudio,
 #custom-network,
+#group-audio,
 #tray {
   padding: 0 10px;
   margin: 5px 3px;
