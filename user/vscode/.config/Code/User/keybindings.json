@@ -1,0 +1,20 @@
+// Place your key bindings in this file to override the defaults
+[
+    {
+        "key": "ctrl+[Semicolon]",
+        "command": "workbench.action.terminal.toggleTerminal"
+    },
+    // Binding for previewing a VapourSynth filterchain using vs-preview
+    {
+        "key": "F5",
+        "command": "workbench.action.terminal.sendSequence",
+        "args": {
+            "text": "python -m vspreview \"${file}\"\u000D"
+        },
+        "when": "resourceExtname == '.vpy'"
+    },
+    {
+        "key": "shift+alt+p",
+        "command": "editor.action.transformToPascalcase"
+    }
+]

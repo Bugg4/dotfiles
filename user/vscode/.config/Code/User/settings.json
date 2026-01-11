@@ -1,0 +1,55 @@
+{
+    "editor.formatOnSave": false,
+    "editor.fontFamily": "'Noto Sans Mono Nerd Font', 'monospace', monospace",
+    "explorer.confirmDelete": false,
+    "editor.minimap.enabled": false,
+    "window.menuBarVisibility": "compact",
+    "git.confirmSync": false,
+    "git.untrackedChanges": "hidden",
+    "search.followSymlinks": false,
+    "redhat.telemetry.enabled": true,
+    "rust-analyzer.check.overrideCommand": null,
+    "editor.renderWhitespace": "all",
+    "[markdown]": {
+        "editor.defaultFormatter": "darkriszty.markdown-table-prettify"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[shellscript]":{
+        "editor.tabSize": 3,
+        "editor.defaultFormatter": "foxundermoon.shell-format"
+    },
+    "C_Cpp.clang_format_fallbackStyle": "Google",
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "files.associations": {
+        "*.lock": "json",
+        ".bash_functions": "shellscript",
+        "*.vpy": "python"
+    },
+    "shellformat.effectLanguages": [
+        "shellscript",
+        "dockerfile",
+        "dotenv",
+        "hosts",
+        "jvmoptions",
+        "ignore",
+        "gitignore",
+        "properties",
+        "spring-boot-properties",
+        "azcli",
+        "bats"
+    ],
+    "shellformat.path": "/usr/bin/shfmt",
+    "git.enableSmartCommit": true,
+    "window.restoreWindows": "none",
+    "window.confirmSaveUntitledWorkspace": false
+}
