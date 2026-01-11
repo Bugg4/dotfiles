@@ -175,7 +175,7 @@ def main():
             print(json.dumps(output), flush=True)
 
             # Update every 3 seconds
-            time.sleep(3)
+            time.sleep(5)
 
         except (KeyboardInterrupt, SystemExit):
             break

@@ -57,6 +57,7 @@ window#waybar {
 #clock,
 #custom-network,
 #group-audio,
+#submap,
 #tray {
   padding: 0 10px;
   margin: 5px 3px;
