@@ -10,7 +10,8 @@
     // Module ordering
     "modules-left": [], // No modules on the left
     "modules-center": [
-        "hyprland/workspaces"
+        "hyprland/workspaces",
+        "hyprland/submap"
     ], // Workspaces in the center
     "modules-right": [
         "tray",
@@ -41,6 +42,11 @@
             "focused": "",
             "default": ""
         }
+    },
+    "hyprland/submap": {
+        "format": "{}",
+        "max-length": 8,
+        "tooltip": false
     },
     "group/audio": {
         "orientation": "horizontal",
