@@ -1,3 +1,4 @@
+# shellcheck disable=SC2148
 fzf-aliases-functions() {
   local CMD
   CMD=$(
@@ -18,22 +19,22 @@ fzf-aliases-functions() {
 function fzf-env-vars() {
   local out
   out=$(env | fzf)
-  echo $(echo $out | cut -d= -f2)
+  echo "$out" | cut -d= -f2
 }
 
 # fuzzy cd (no hidden dirs)
 function fcd() {
   local dir
-  dir=$(find ${1:-.} -path '*/\.*' -prune \
+  dir=$(find "${1:-.}" -path '*/\.*' -prune \
     -o -type d -print 2>/dev/null | fzf +m) &&
-    cd "$dir"
+    cd "$dir" || exit
   ls
 }
 
 # fuzzy cd, include hidden dirs
 function fcda() {
   local dir
-  dir=$(find ${1:-.} -type d 2>/dev/null | fzf +m) && cd "$dir"
+  dir=$(find "${1:-.}" -type d 2>/dev/null | fzf +m) && cd "$dir" || exit
   ls
 }
 
@@ -41,7 +42,7 @@ function fcda() {
 function fcdf() {
   local file
   local dir
-  file=$(fzf +m -q "$1") && dir=$(dirname "$file") && cd "$dir"
+  file=$(fzf +m -q "$1") && dir=$(dirname "$file") && cd "$dir" || exit
   ls
 }
 
@@ -59,19 +60,19 @@ qr() {
 }
 
 extract() {
-  if [ -f $1 ]; then
+  if [ -f "$1" ]; then
     case $1 in
-    *.tar.bz2) tar xvjf $1 ;;
-    *.tar.gz) tar xvzf $1 ;;
-    *.bz2) bunzip2 $1 ;;
-    *.rar) unrar x $1 ;;
-    *.gz) gunzip $1 ;;
-    *.tar) tar xvf $1 ;;
-    *.tbz2) tar xvjf $1 ;;
-    *.tgz) tar xvzf $1 ;;
-    *.zip) unzip $1 ;;
-    *.Z) uncompress $1 ;;
-    *.7z) 7z x $1 ;;
+    *.tar.bz2) tar xvjf "$1" ;;
+    *.tar.gz) tar xvzf "$1" ;;
+    *.bz2) bunzip2 "$1" ;;
+    *.rar) unrar x "$1" ;;
+    *.gz) gunzip "$1" ;;
+    *.tar) tar xvf "$1" ;;
+    *.tbz2) tar xvjf "$1" ;;
+    *.tgz) tar xvzf "$1" ;;
+    *.zip) unzip "$1" ;;
+    *.Z) uncompress "$1" ;;
+    *.7z) 7z x "$1" ;;
     *) echo "Unable to extract '$1'" ;;
     esac
   else

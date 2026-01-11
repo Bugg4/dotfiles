@@ -1,3 +1,4 @@
+# shellcheck disable=SC2148
 # generic
 alias ls='eza --color=auto --icons=auto --long --hyperlink --group-directories-first'
 alias stow-user='stow --no-folding --verbose --dir=${HOME}/dotfiles/user/ --target=${HOME}/'
