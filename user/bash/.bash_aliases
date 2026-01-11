@@ -15,23 +15,18 @@ alias kp='kp /home/marco/documents/keepass/keepass.kdbx'
 alias sourcebash='source ${HOME}/.bashrc && printf "${HOME}/.bashrc sourced!\n"'
 alias sourceprofile='source ${HOME}/.bash_profile && printf "${HOME}/.bash_profile sourced!\n"'
 
-# configs
-alias dots='code $(find $HOME/dotfiles | fzf)'
-alias edots='code $HOME/dotfiles'
+# Open dotfiles
+alias dot='code -a $(find $HOME/dotfiles/ -maxdepth 2 -type d | fzf)'
+alias dots='code $HOME/dotfiles'
 
 # directories
-alias cd-wine-runners='cd $HOME/.local/share/wine/runners'
-alias cd-wine-prefixes='cd $HOME/.local/share/wine/prefixes'
+alias wine-runners='cd $HOME/.local/share/wine/runners'
+alias wine-prefixes='cd $HOME/.local/share/wine/prefixes'
 
 # wine
 alias wine-ew-affinity='rum ElementalWarriorWine-x86_64 $HOME/.local/share/wine/prefixes/affinity/'
 
 # git
-alias gs='git status'
-alias gl='git log'
-alias gadd='git add'
-alias gc='git commit -m'
-alias gb='git branch'
 alias gsb='git checkout $(git branch | fzf)'
 alias gor='git-open-remote.sh'
 
