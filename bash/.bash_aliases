@@ -1,7 +1,8 @@
 # shellcheck disable=SC2148
 # generic
 alias ls='eza --color=auto --icons=auto --long --hyperlink --group-directories-first'
-alias stow='stow --no-folding --verbose --dir=${HOME}/dotfiles/user/ --target=${HOME}/'
+alias stow='stow --no-folding --verbose --dir=${HOME}/dotfiles/ --target=${HOME}/'
+alias stow-force='cd $HOME/dotfiles && stow --no-folding --verbose --dir=${HOME}/dotfiles/ --target=${HOME}/ --adopt * && git restore .'
 alias yt='yt-dlp'
 alias btop='btop -u 100'
 alias todo='micro $HOME/todo.md'
