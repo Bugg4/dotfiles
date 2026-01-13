@@ -3,5 +3,5 @@
 
 [templates.hyprpaper]
 input_path = './templates/hyprpaper.matugen'
-output_path = '/home/marco/.config/hypr/hyprpaper.conf'
+output_path = '$HOME/.config/hypr/hyprpaper.conf'
 post_hook = 'killall hyprpaper; hyprpaper &> /dev/null &'
