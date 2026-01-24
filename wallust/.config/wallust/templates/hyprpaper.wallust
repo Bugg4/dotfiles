@@ -1,5 +1,6 @@
 wallpaper {
     monitor = DP-1
     path = {{wallpaper}}
-    fit_mode = cover  
+    fit_mode = cover
+    splash = false
 }
