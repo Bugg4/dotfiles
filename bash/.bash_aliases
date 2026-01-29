@@ -37,6 +37,8 @@ alias cp='cp -i'
 alias ln='ln -i'
 alias rm='rm -I --preserve-root'
 
+alias cls='clear'
+
 # Parenting changing perms on /
 alias chown='chown --preserve-root'
 alias chmod='chmod --preserve-root'
