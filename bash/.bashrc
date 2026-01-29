@@ -2,7 +2,10 @@
 [[ $- != *i* ]] && return
 
 # flex
-fastfetch
+if [ "$TERM_PROGRAM" != "vscode" ]; then
+    fastfetch
+fi
+
 
 # git branch in prompt
 source ~/scripts/git-prompt.sh
