@@ -30,6 +30,9 @@ case ":$PATH:" in
 esac
 # pnpm end
 
+# Append user cargo bianaries
+export PATH="$HOME/.cargo/bin:$PATH"
+
 # Node version manager (nvm)
 source /usr/share/nvm/init-nvm.sh
 
