@@ -65,7 +65,7 @@
     },
     "custom/network": {
         "exec": "~/.config/waybar/waybar-network.py",
-        "format": "{text}",
+        "format": "{alt} {text}",
         "return-type": "json",
         "on-click": "~/.config/waybar/waybar-network.py --select",
         "max-length": 50
