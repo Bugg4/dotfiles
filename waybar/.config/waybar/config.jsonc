@@ -17,6 +17,7 @@
         "tray",
         "custom/network",
         "custom/gpu",
+        "custom/cpu",
         "group/audio",
         "clock"
     ], // Modules on the right, in this order
@@ -52,8 +53,15 @@
     "custom/gpu": {
         "exec": "~/.config/waybar/waybar-gpu-usage.sh",
         "return-type": "json",
-        "format": " {}",
+        "format": "󰹑: {}",
         "interval": 1, // Update every 1 seconds
+        "tooltip": true
+    },
+    "custom/cpu": {
+        "exec": "~/.config/waybar/waybar-cpu-usage.py",
+        "return-type": "json",
+        "format": ": {}",
+        "interval": 1, // Update every 2 seconds
         "tooltip": true
     },
     "group/audio": {
