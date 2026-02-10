@@ -7,8 +7,14 @@ import os
 import re
 
 # --- Configuration ---
+# Use XDG_CONFIG_HOME or fallback to ~/.config
 MENU_COMMAND = "fuzzel -d"
 TEMP_FILE = "/tmp/waybar_bluetooth_selected_device.tmp"
+import pathlib
+PERSISTENT_FILE = os.path.join(
+    os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config")),
+    "waybar/waybar-bt-battery.lastdev"
+)
 # ---------------------
 
 
@@ -65,15 +71,25 @@ def select_device():
             if len(mac.split(":")) == 6:
                 with open(TEMP_FILE, "w") as f:
                     f.write(mac)
+                # Save persistently as well
+                try:
+                    pathlib.Path(os.path.dirname(PERSISTENT_FILE)).mkdir(parents=True, exist_ok=True)
+                    with open(PERSISTENT_FILE, "w") as pf:
+                        pf.write(mac)
+                except Exception:
+                    pass
 
     except (subprocess.CalledProcessError, FileNotFoundError):
         pass
 
 
 def get_target_device_mac():
-    """Reads the selected MAC address from temp file."""
+    """Reads the selected MAC address from temp file, or persistent file if temp does not exist."""
     if os.path.exists(TEMP_FILE):
         with open(TEMP_FILE, "r") as f:
+            return f.read().strip()
+    elif os.path.exists(PERSISTENT_FILE):
+        with open(PERSISTENT_FILE, "r") as f:
             return f.read().strip()
     return None
 
