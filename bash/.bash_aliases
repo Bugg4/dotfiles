@@ -26,6 +26,7 @@ alias wine-prefixes='cd $HOME/.local/share/wine/prefixes'
 
 # wine
 alias wine-ew-affinity='rum ElementalWarriorWine-x86_64 $HOME/.local/share/wine/prefixes/affinity/'
+alias wine-affinity-new='WINEPREFIX="$HOME/.local/share/wine/prefixes/affinity-new"'
 
 # git
 alias gsb='git checkout $(git branch | fzf)'
