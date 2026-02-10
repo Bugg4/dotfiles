@@ -1,5 +1,6 @@
 #!/bin/bash
 
+while true; do
 # Initialize variables
 gpu_usage="N/A"
 gpu_temp="N/A"
@@ -42,3 +43,6 @@ fi
 
 # Output in JSON format
 printf '{"text": "%s%% %s°C", "tooltip": "%s", "class": "%s"}\n' "$gpu_usage" "$gpu_temp" "$tool_tip" "$class"
+
+sleep 1
+done

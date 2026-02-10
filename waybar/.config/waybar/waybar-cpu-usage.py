@@ -132,56 +132,71 @@ def get_cpu_usage_and_cores():
         return {}
 
 def main():
+    # Get static info once
     model = get_cpu_model()
-    usage_data = get_cpu_usage_and_cores()
-    temp = get_cpu_temp()
     
-    total_usage = usage_data.get('all', 0.0)
-    
-    # Format Tooltip
-    tooltip = f"CPU Model: {model}\n"
-    tooltip += f"Temperature: {temp}°C\n"
-    tooltip += "----------------\n"
-    
-    # Sort cores numerically
-    cores = []
-    for k in usage_data.keys():
-        if k.isdigit():
-            cores.append(int(k))
-    cores.sort()
-    
-    for core in cores:
-        usg = usage_data.get(str(core), 0.0)
-        # Bar graph for tooltip?
-        # usg_bar = "█" * int(usg / 10) + "░" * (10 - int(usg / 10))
-        tooltip += f"Core {core:<2}: {usg:5.1f}%\n"
-        
-    css_class = "normal"
-    try:
-        t_val = float(temp)
-        if t_val > 80:
-            css_class = "critical"
-        elif t_val > 60:
-            css_class = "warning"
-    except:
-        pass
-    
-    # Remove trailing newline from tooltip
-    tooltip = tooltip.strip()
+    while True:
+        try:
+            usage_data = get_cpu_usage_and_cores()
+            temp = get_cpu_temp()
+            
+            total_usage = usage_data.get('all', 0.0)
+            
+            # Format Tooltip
+            tooltip = f"CPU Model: {model}\n"
+            tooltip += f"Temperature: {temp}°C\n"
+            tooltip += "----------------\n"
+            
+            # Sort cores numerically
+            cores = []
+            for k in usage_data.keys():
+                if k.isdigit():
+                    cores.append(int(k))
+            cores.sort()
+            
+            for core in cores:
+                usg = usage_data.get(str(core), 0.0)
+                # Bar graph for tooltip?
+                # usg_bar = "█" * int(usg / 10) + "░" * (10 - int(usg / 10))
+                tooltip += f"Core {core:<2}: {usg:5.1f}%\n"
+                
+            css_class = "normal"
+            try:
+                t_val = float(temp)
+                if t_val > 80:
+                    css_class = "critical"
+                elif t_val > 60:
+                    css_class = "warning"
+            except:
+                pass
+            
+            # Remove trailing newline from tooltip
+            tooltip = tooltip.strip()
 
-    try:
-        temp_val = float(temp)
-        temp_str = f"{temp_val:.0f}"
-    except:
-        temp_str = temp
+            try:
+                temp_val = float(temp)
+                temp_str = f"{temp_val:.0f}"
+            except:
+                temp_str = temp
 
-    output = {
-        "text": f"{total_usage:02.0f}% {temp_str}°C",
-        "tooltip": tooltip,
-        "class": css_class
-    }
-    
-    print(json.dumps(output))
+            output = {
+                "text": f"{total_usage:02.0f}% {temp_str}°C",
+                "tooltip": tooltip,
+                "class": css_class
+            }
+            
+            print(json.dumps(output), flush=True)
+
+            # mpstat 1 1 takes about 1 second to run, so we effectively have a 1s interval.
+            # If for some reason it returns instantly, we might want a small sleep, but valid mpstat
+            # calls should block for the interval.
+            
+        except Exception as e:
+            # Output error but keep running
+            error_output = {"text": "Error", "tooltip": str(e)}
+            print(json.dumps(error_output), flush=True)
+            import time
+            time.sleep(2) # Wait before retrying
 
 if __name__ == "__main__":
     main()
