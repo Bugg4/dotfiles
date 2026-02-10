@@ -19,17 +19,22 @@ def get_cpu_temp():
         # Try k10temp (AMD) Tctl first
         sensors = subprocess.check_output(['sensors'], text=True)
         
-        # Look for Tctl or similar
-        for line in sensors.splitlines():
-            if "Tctl:" in line:
-                 # Calculate Tctl
-                 parts = line.split()
-                 for part in parts:
-                     if part.startswith('+') and part.endswith('°C'):
-                         return part.replace('+', '').replace('°C', '')
+        # Look for Tccd1 or Tccd2 (Actual Die Temp) first, then Tctl
+        lines = sensors.splitlines()
+        
+        # Priority list of labels to look for
+        priorities = ["Tccd1:", "Tccd2:", "Tdie:", "Tctl:"]
+        
+        for label in priorities:
+            for line in lines:
+                if label in line:
+                     parts = line.split()
+                     for part in parts:
+                         if part.startswith('+') and part.endswith('°C'):
+                             return part.replace('+', '').replace('°C', '')
         
         # Fallback to any temp1
-        for line in sensors.splitlines():
+        for line in lines:
              if "temp1:" in line:
                  parts = line.split()
                  for part in parts:

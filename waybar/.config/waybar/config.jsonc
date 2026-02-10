@@ -16,8 +16,8 @@
     "modules-right": [
         "tray",
         "custom/network",
-        "custom/gpu",
         "custom/cpu",
+        "custom/gpu",
         "group/audio",
         "clock"
     ], // Modules on the right, in this order
