@@ -55,3 +55,4 @@ dunst = { template = 'dunst.wallust', target = '~/.config/dunst/dunstrc' }
 waybar = { template = 'waybar.wallust', target = '~/.config/waybar/waybar.colors.css' }
 ghostty = { template = 'ghostty.wallust', target = '~/.config/ghostty/ghostty.colors.conf' }
 fuzzel = { template = 'fuzzel.wallust', target = '~/.config/fuzzel/fuzzel.colors.ini' }
+micro = { template = 'micro.wallust', target = '~/.config/micro/colorschemes/wallust-generated.micro' }
