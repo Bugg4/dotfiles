@@ -1,3 +1,4 @@
 **/nnedi*.hook
 **/mpv/**/*.glsl
 **/*.colors.*
+**/*.pyc
