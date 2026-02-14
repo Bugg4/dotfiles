@@ -1,6 +1,5 @@
 [Trigger]
 Operation = Install
-Operation = Upgrade
 Operation = Remove
 Type = Package
 Target = *
@@ -8,4 +7,4 @@ Target = *
 [Action]
 Description = Save and commit list of installed packages
 When = PostTransaction
-Exec = /bin/sh -c 'pacman -Qqe > "/home/marco/dotfiles/pacman/installed.list" && cd "/home/marco/dotfiles" && sudo -u marco git add pacman/installed.list > /dev/null && sudo -u marco git commit -m "Update installed packages list" > /dev/null'
+Exec = /bin/sh -c 'pacman -Qqe > /home/marco/dotfiles/pacman/installed.list && cd /home/marco/dotfiles && sudo -u marco git add pacman/installed.list > /dev/null && sudo -u marco git commit -m "Update installed packages list" > /dev/null'
