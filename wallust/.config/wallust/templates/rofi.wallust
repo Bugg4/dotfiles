@@ -1,0 +1,66 @@
+// rofi.wallust - Wallust template for Rofi
+// Reference: https://github.com/davatorium/rofi/blob/next/themes/gruvbox-dark.rasi
+
+* {
+    // Wallust Colors
+    background:                  {{background}};
+    foreground:                  {{foreground}};
+    cursor:                      {{cursor}};
+    
+    color0:                      {{color0}};
+    color1:                      {{color1}};
+    color2:                      {{color2}};
+    color3:                      {{color3}};
+    color4:                      {{color4}};
+    color5:                      {{color5}};
+    color6:                      {{color6}};
+    color7:                      {{color7}};
+    color8:                      {{color8}};
+    color9:                      {{color9}};
+    color10:                     {{color10}};
+    color11:                     {{color11}};
+    color12:                     {{color12}};
+    color13:                     {{color13}};
+    color14:                     {{color14}};
+    color15:                     {{color15}};
+
+    // Semantic Variables for main.rasi
+    bg:                          @background;
+    fg:                          @foreground;
+    accent:                      @foreground;
+    button:                      @color3;
+
+    // Core Theme Colors
+    background-color:            @background;
+    text-color:                  @foreground;
+    placeholder:                 @foreground; 
+    border-color:                @color3;
+    separator-color:             @color1;
+    spacing:                     2;
+
+    // Normal State
+    normal-background:           @background;
+    normal-foreground:           @foreground;
+    alternate-normal-background: @background;
+    alternate-normal-foreground: @foreground;
+    
+    // Selected State
+    selected-normal-background:  @color4;
+    selected-normal-foreground:  @foreground;
+
+    // Active State
+    active-background:           @color2;
+    active-foreground:           @background;
+    alternate-active-background: @active-background;
+    alternate-active-foreground: @active-foreground;
+    selected-active-background:  @color4;
+    selected-active-foreground:  @active-foreground;
+
+    // Urgent State
+    urgent-background:           @color1;
+    urgent-foreground:           @background;
+    alternate-urgent-background: @urgent-background;
+    alternate-urgent-foreground: @urgent-foreground;
+    selected-urgent-background:  @color5;
+    selected-urgent-foreground:  @urgent-foreground;
+}
