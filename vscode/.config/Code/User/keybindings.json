@@ -16,5 +16,5 @@
     {
         "key": "shift+alt+p",
         "command": "editor.action.transformToPascalcase"
-    }
+    },
 ]
