@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+
+# --- Configuration ---
+CACHE_DIR="/tmp/hypr_window_preview"
+ICON_SIZE=64
+MAX_TITLE_LEN=45
+
+# Ensure dependencies are present
+for cmd in fuzzel hyprctl jq grim; do
+    if ! command -v $cmd &> /dev/null; then
+        notify-send "Missing dependency: $cmd"
+        exit 1
+    fi
+done
+
+# Prepare cache
+mkdir -p "$CACHE_DIR"
+# Optional: Clear old screenshots to ensure freshness (can verify with timestamp later)
+rm -f "$CACHE_DIR"/*.png
+
+# Get current state
+ACTIVE_WORKSPACE=$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .activeWorkspace.id')
+CLIENTS_JSON=$(hyprctl clients -j)
+
+# Logic to generate a single line entry
+process_client() {
+    local addr="$1"
+    local title="$2"
+    local class="$3"
+    local ws="$4"
+    local x="$5"
+    local y="$6"
+    local w="$7"
+    local h="$8"
+
+    # Truncate title
+    if [ ${#title} -gt $MAX_TITLE_LEN ]; then
+        display_title="${title:0:$MAX_TITLE_LEN}…"
+    else
+        display_title="$title"
+    fi
+
+    # Escape special characters for display
+    display_title=${display_title//&/&amp;}
+    display_title=${display_title//</&lt;}
+    display_title=${display_title//>/&gt;}
+
+    # ICON LOGIC
+    icon_path=""
+    
+    # If window is on the active workspace, snap a screenshot
+    if [ "$ws" -eq "$ACTIVE_WORKSPACE" ]; then
+        icon_file="$CACHE_DIR/${addr}.png"
+        
+        # Take screenshot of the window region
+        grim -g "${x},${y} ${w}x${h}" "$icon_file" > /dev/null 2>&1
+        
+        if [ -f "$icon_file" ]; then
+            icon_path="$icon_file"
+        fi
+    fi
+
+    # Fallback to app class icon if no screenshot (or not on active WS)
+    if [ -z "$icon_path" ]; then
+        icon_path="$class"
+    fi
+
+    # OUTPUT FORMAT
+    # Syntax: Display Text \0icon\x1f PathToIcon
+    # We append the address at the end with a unique delimiter (##) to parse it later
+    echo -e "${class}  <span color='gray'>|</span>  ${display_title}  <span size='small' color='gray'>[Ws:${ws}]</span>  <span color='#1e1e2e'>##${addr}</span>\0icon\x1f${icon_path}"
+}
+
+# 1. Parse JSON
+# 2. Loop through lines
+# 3. Run generation in background (&)
+# 4. Wait for all to finish inside the subshell
+# 5. Pipe everything to fuzzel
+selection=$(
+    (
+        echo "$CLIENTS_JSON" | jq -r '.[] | "\(.address)\t\(.title)\t\(.class)\t\(.workspace.id)\t\(.at[0])\t\(.at[1])\t\(.size[0])\t\(.size[1])"' | \
+        while IFS=$'\t' read -r addr title class ws x y w h; do
+            process_client "$addr" "$title" "$class" "$ws" "$x" "$y" "$w" "$h" &
+        done
+        wait
+    ) | fuzzel --dmenu --prompt="  " --lines=15 --width=80 --icon-theme="Papirus" --match-mode=fzf
+)
+
+# Handle selection
+if [ -n "$selection" ]; then
+    # Extract address using the ## delimiter
+    # standard awk processing
+    addr=$(echo "$selection" | awk -F'##' '{print $2}')
+    
+    if [ -n "$addr" ]; then
+        hyprctl dispatch focuswindow address:"$addr"
+    fi
+fi

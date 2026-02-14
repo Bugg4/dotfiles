@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+
+# Dependency check
+command -v keepassxc-cli >/dev/null 2>&1 || {
+    echo >&2 "keepassxc-cli is required but not installed. Aborting."
+    exit 1
+}
+command -v fzf >/dev/null 2>&1 || {
+    echo >&2 "fzf is required but not installed. Aborting."
+    exit 1
+}
+command -v wl-copy >/dev/null 2>&1 || {
+    echo >&2 "wl-copy is required but not installed. Aborting."
+    exit 1
+}
+
+# Check arguments
+if [ -z "$1" ]; then
+    echo "Usage: $0 <path-to-database.kdbx>"
+    exit 1
+fi
+
+DB_PATH="$1"
+CLIPBOARD_TIMEOUT=30
+
+# Password input
+trap 'unset DB_PASS' EXIT
+read -s -p "Enter Database Password: " DB_PASS
+echo ""
+
+if [ -z "$DB_PASS" ]; then
+    echo "Password cannot be empty."
+    exit 1
+fi
+
+# Get list of entries
+echo "Opening DB..."
+SELECTED_ENTRY=$(echo "$DB_PASS" |
+    keepassxc-cli ls -R -f "$DB_PATH" 2>/dev/null |
+    grep -v '/$' |
+    grep -v '^$' |
+    fzf --prompt="Select Entry > " --height=40% --layout=reverse --border)
+
+if [ -z "$SELECTED_ENTRY" ]; then
+    echo "No entry selected."
+    exit 0
+fi
+
+# 4. Get attributes for selected entry
+RAW_ATTRS=$(echo "$DB_PASS" | keepassxc-cli show "$DB_PATH" "$SELECTED_ENTRY" 2>/dev/null)
+
+SELECTED_ATTR_LINE=$({
+    echo "$RAW_ATTRS"
+    echo "TOTP: (Generate Code)"
+} |
+    grep -v "^$" |
+    fzf --prompt="Select Attribute to Copy > " --height=20% --layout=reverse --border)
+
+if [ -z "$SELECTED_ATTR_LINE" ]; then
+    echo "No attribute selected."
+    exit 0
+fi
+
+# Extract the Key name (everything before the first colon)
+ATTR_KEY=$(echo "$SELECTED_ATTR_LINE" | cut -d: -f1)
+
+# 5. Fetch Secret and Copy
+if [[ "$ATTR_KEY" == "TOTP" ]]; then
+    # Run the command and capture both stdout (the code) and stderr (the error message)
+    SECRET=$(echo "$DB_PASS" | keepassxc-cli show -t -q "$DB_PATH" "$SELECTED_ENTRY" 2>&1)
+
+    # Define the expected error string from keepassxc-cli
+    ERROR_STRING="has no TOTP set up."
+
+    # Check if the output contains the error message
+    if [[ "$SECRET" == *"$ERROR_STRING"* ]]; then
+        echo "ERROR: $SELECTED_ENTRY has no TOTP configured."
+        exit 1
+    fi
+    # If we reach here, SECRET contains the valid TOTP code.
+
+else
+    # Standard attribute retrieval
+    SECRET=$(echo "$DB_PASS" | keepassxc-cli show -s -a "$ATTR_KEY" -q "$DB_PATH" "$SELECTED_ENTRY")
+fi
+
+# Copy to Wayland clipboard
+echo -n "$SECRET" | wl-copy
+
+echo "---------------------------------------------------"
+echo "Copied '$ATTR_KEY' from '$SELECTED_ENTRY' to clipboard."
+echo "Clipboard will clear in $CLIPBOARD_TIMEOUT seconds."
+echo "---------------------------------------------------"
+
+# 6. Clear Clipboard after timeout
+(
+    sleep "$CLIPBOARD_TIMEOUT"
+    wl-copy --clear
+) &
+
+disown
