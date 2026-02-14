@@ -1,6 +1,7 @@
 # shellcheck disable=SC2148
 # generic
-alias ls='eza --color=auto --icons=auto --long --hyperlink --group-directories-first'
+# alias ls='eza --color=auto --icons=auto --long --hyperlink --group-directories-first'
+alias ls='ls -lah --color=auto --group-directories-first'
 alias stow='stow --no-folding --verbose --ignore=^mybin$ --dir=${HOME}/dotfiles/ --target=${HOME}/'
 alias stow-force='cd $HOME/dotfiles && git stash -m "before stow-force on $(date -I)" && stow --no-folding --verbose --ignore=^mybin$ --dir=${HOME}/dotfiles/ --target=${HOME}/ --adopt * && git restore .'
 alias yt='yt-dlp'
