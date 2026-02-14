@@ -1,12 +1,4 @@
-* {
-    bg: #1c2023;
-    fg: #919ba0;
-    accent: #89b4fa;
-    button: #2a2e32;
-
-    background-color: @bg;
-    text-color: @fg;
-}
+@import "rofi.colors.rasi"
 
 window {
     transparency: "real";
@@ -21,7 +13,7 @@ prompt { enabled: false; }
 
 entry {
     placeholder: "Search";
-    placeholder-color: #5c6370;
+    placeholder-color: @placeholder;
     expand: true;
     padding: 10px;
     border-radius: 8px;
