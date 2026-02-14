@@ -8,7 +8,7 @@ fi
 
 
 # git branch in prompt
-source ~/scripts/git-prompt.sh
+source /usr/local/bin/git-prompt
 
 PROMPT_COMMAND='PS1_CMD1=$(pwd)'; PS1='\n\[\e[2m\]${PS1_CMD1}\n\[\e[0;1m\]\u\[\e[0;2m\]@\[\e[0m\]\h\[\e[2m\]$(__git_ps1)> \[\e[0m\]'
 

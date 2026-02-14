@@ -17,8 +17,7 @@ SCRIPTS=(
     "grimshot"
     "homebackup"
     "imv-preview"
-    "kp"
-    "linkman"
+    "keepass-cli-wrapper"
     "nettraffic"
     "pkgshow"
     "sourcebash"
@@ -27,7 +26,6 @@ SCRIPTS=(
     "vidshot"
     "waydroid-full-reset"
     "winswitch"
-    "wofi-emoji"
 )
 
 echo "Installing selected scripts to $TARGET..."

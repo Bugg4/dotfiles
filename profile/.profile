@@ -5,7 +5,6 @@
 # set user dictories
 export SCREENSHOTS_DIR=$HOME/images/screenshots
 export DOCUMENTS_DIR=$HOME/documents
-export SCRIPTS_DIR=$HOME/scripts
 export DOWNLOADS_DIR=$HOME/downloads
 
 # default terminal emulator
@@ -20,12 +19,6 @@ export ELECTRON_OZONE_PLATFORM_HINT=wayland
 
 # make flags for parallel builds
 # export MAKEFLAGS=-j$(nproc) #disabled for conflict with the building process of nvidia-580xx-utils AUR package
-
-
-# add other user directories to PATH
-if [ -d "$SCRIPTS_DIR" ] ; then
-    PATH="$SCRIPTS_DIR:$PATH"
-fi
 
 # Automatically launch Hyprland if not running in a graphical environment
 if [ -z "$DISPLAY" ] && [ "$XDG_VTNR" = 1 ]; then

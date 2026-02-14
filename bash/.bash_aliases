@@ -10,7 +10,7 @@ alias bloat='sudo du -sh * .[^.]* | sort -h'
 alias music='mpv "$(find /mnt/WIN_D/Musica/ | fzf)"'
 alias ffmpeg='ffmpeg -hide_banner'
 alias reflector-refresh='sudo reflector --verbose --protocol https --latest 16 --sort rate --save /etc/pacman.d/mirrorlist && cat /etc/pacman.d/mirrorlist'
-alias kp='kp $HOME/documents/keepass/keepass.kdbx'
+alias kp='keepass-cli-wrapper $HOME/documents/keepass/keepass.kdbx'
 
 # quick sourcing
 alias sourcebash='source ${HOME}/.bashrc && printf "${HOME}/.bashrc sourced!\n"'
@@ -30,7 +30,7 @@ alias wine-affinity-new='WINEPREFIX="$HOME/.local/share/wine/prefixes/affinity-n
 
 # git
 alias gsb='git checkout $(git branch | fzf)'
-alias gor='git-open-remote.sh'
+alias gor='git-open-remote'
 
 # confirmation
 alias mv='mv -i'
