@@ -9,5 +9,3 @@ Target = *
 Description = Save list of explicitly installed packages
 When = PostTransaction
 Exec = /bin/sh -c 'pacman -Qqe > "$HOME/dotfiles/pacman/installed.list"'
-
-# Generated on 2026-02-14
