@@ -8,4 +8,4 @@ Target = *
 [Action]
 Description = Save list of explicitly installed packages
 When = PostTransaction
-Exec = /bin/sh -c 'pacman -Qqe > "$HOME/dotfiles/pacman/installed.list"'
+Exec = /bin/sh -c 'pacman -Qqe > "/home/marco/dotfiles/pacman/installed.list" && cd "/home/marco/dotfiles" && sudo -u marco git add pacman/installed.list && sudo -u marco git commit -m "Update installed.list after pacman transaction"'
