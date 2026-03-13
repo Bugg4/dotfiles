@@ -1,7 +1,7 @@
 # shellcheck disable=SC2148
 # generic
-# alias ls='eza --color=auto --icons=auto --long --hyperlink --group-directories-first'
-alias ls='ls -lah --color=auto --group-directories-first'
+alias ls='eza --color=auto --icons=auto --long --hyperlink --group-directories-first'
+# alias ls='ls -lah --color=auto --group-directories-first'
 alias stow='stow --no-folding --verbose --ignore=^mybin$ --dir=${HOME}/dotfiles/ --target=${HOME}/'
 alias stow-force='cd $HOME/dotfiles && git stash -m "before stow-force on $(date -I)" && stow --no-folding --verbose --ignore=^mybin$ --dir=${HOME}/dotfiles/ --target=${HOME}/ --adopt * && git restore .'
 alias yt='yt-dlp'
@@ -12,6 +12,7 @@ alias music='mpv "$(find /mnt/WIN_D/Musica/ | fzf)"'
 alias ffmpeg='ffmpeg -hide_banner'
 alias reflector-refresh='sudo reflector --verbose --protocol https --latest 16 --sort rate --save /etc/pacman.d/mirrorlist && cat /etc/pacman.d/mirrorlist'
 alias kp='keepass-cli-wrapper $HOME/documents/keepass/keepass.kdbx'
+alias ag='antigravity'
 
 # quick sourcing
 alias sourcebash='source ${HOME}/.bashrc && printf "${HOME}/.bashrc sourced!\n"'
