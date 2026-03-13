@@ -1,16 +1,34 @@
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
-# flex
-if [ "$TERM_PROGRAM" != "vscode" ]; then
-    fastfetch
-fi
+# check if we're in vscode's temirnal
+function __is_vscode() {
+   if [ "$TERM_PROGRAM" = "vscode" ]; then
+      return 0
+   else
+      return 1
+   fi
+}
 
+# check if we're inside tmux
+function __is_tmux() {
+   if { [ "$TERM" = "screen" ] || [ -n "$TMUX" ]; }; then
+      return 0
+   else
+      return 1
+   fi
+}
+
+# flex if appropriate
+if ! __is_vscode && ! __is_tmux; then
+   fastfetch
+fi
 
 # git branch in prompt
 source /usr/local/bin/git-prompt
 
-PROMPT_COMMAND='PS1_CMD1=$(pwd)'; PS1='\n\[\e[2m\]${PS1_CMD1}\n\[\e[0;1m\]\u\[\e[0;2m\]@\[\e[0m\]\h\[\e[2m\]$(__git_ps1)> \[\e[0m\]'
+PROMPT_COMMAND='PS1_CMD1=$(pwd)'
+PS1='\n\[\e[2m\]${PS1_CMD1}\n\[\e[0;1m\]\u\[\e[0;2m\]@\[\e[0m\]\h\[\e[2m\]$(__git_ps1)> \[\e[0m\]'
 
 # source aliases file
 if [ -f "$HOME/.bash_aliases" ]; then
@@ -25,8 +43,8 @@ fi
 # pnpm
 export PNPM_HOME="$HOME/.local/share/pnpm"
 case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
+*":$PNPM_HOME:"*) ;;
+*) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
 
