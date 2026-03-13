@@ -32,6 +32,7 @@ dosfstools
 dunst
 easyeffects
 efibootmgr
+entr
 etckeeper
 eza
 fastfetch
@@ -94,6 +95,7 @@ mpv
 msedit
 mtools
 nano
+nb
 neovim
 nethogs
 networkmanager
@@ -110,11 +112,13 @@ nvidia-settings
 nvm
 nvtop
 nwg-look
+obsidian
 opencode
 openssh
 os-prober
 p7zip-gui
 pacman-contrib
+parallel
 pavucontrol
 perl-image-exiftool
 pipes.c
@@ -137,8 +141,7 @@ reflector
 ripgrep
 rmpc
 rofi
-rust
-rust-src
+rustup
 samba
 sassc
 scrcpy
@@ -162,6 +165,7 @@ tmux
 torbrowser-launcher
 trash-cli
 tree
+trippy
 ttf-ms-win10-auto
 ttf-noto-nerd
 ttf-unifont
@@ -173,7 +177,6 @@ upd72020x-fw
 uv
 vapoursynth-plugin-bestsource
 vapoursynth-plugin-fmtconv
-vapoursynth-preview
 vapoursynth-tools-genstubs-git
 virtualbox
 visual-studio-code-bin
