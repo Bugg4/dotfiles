@@ -129,6 +129,7 @@ pnpm
 podman
 protonup-qt-bin
 pstoedit
+pybind11
 python-matplotlib
 python-pandas
 python-psutil
@@ -201,3 +202,4 @@ yazi
 yt-dlp
 zathura
 zathura-pdf-mupdf
+zxing-cpp
