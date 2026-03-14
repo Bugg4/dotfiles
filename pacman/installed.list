@@ -129,12 +129,15 @@ pnpm
 podman
 protonup-qt-bin
 pstoedit
-pybind11
+pyside6
+python-babel
 python-matplotlib
 python-pandas
 python-psutil
 python-pyftpdlib
+python-pytesseract
 python-tinycss2
+python-toml
 qbittorrent
 qdirstat
 rclone
@@ -148,6 +151,7 @@ sassc
 scrcpy
 sdparm
 shfmt
+shiboken6
 shotcut
 slurp
 steam
@@ -202,4 +206,3 @@ yazi
 yt-dlp
 zathura
 zathura-pdf-mupdf
-zxing-cpp
