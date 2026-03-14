@@ -102,6 +102,7 @@ networkmanager
 nmap
 nodejs
 nodejs-live-server
+normcap
 noto-color-emoji-fontconfig
 noto-fonts
 noto-fonts-cjk
@@ -134,7 +135,6 @@ python-pandas
 python-psutil
 python-pyftpdlib
 python-tinycss2
-python-zxing-cpp
 qbittorrent
 qdirstat
 rclone
