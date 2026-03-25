@@ -77,4 +77,17 @@
         "editor.defaultFormatter": "vscode.html-language-features"
     },
     "makefile.configureOnOpen": false,
+    "gitlens.views.scm.grouped.views": {
+        "commits": true,
+        "branches": true,
+        "remotes": true,
+        "stashes": true,
+        "tags": true,
+        "worktrees": true,
+        "contributors": true,
+        "fileHistory": true,
+        "repositories": true,
+        "searchAndCompare": false,
+        "launchpad": false
+    },
 }
