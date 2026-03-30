@@ -194,7 +194,6 @@ wf-recorder
 wget
 whois
 winetricks
-wireshark-qt
 wl-clipboard
 wlogout
 wlr-randr
