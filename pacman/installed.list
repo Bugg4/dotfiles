@@ -52,7 +52,6 @@ gnuplot
 gputest
 grim
 grub
-gst-plugins-ugly
 gvfs
 gvfs-mtp
 hdparm
@@ -117,6 +116,7 @@ nvm
 nvtop
 nwg-look
 obsidian
+onlyoffice-bin
 opencode
 openssh
 os-prober
@@ -170,7 +170,6 @@ torbrowser-launcher
 trash-cli
 tree
 trippy
-ttf-carlito
 ttf-ms-win10-auto
 ttf-noto-nerd
 ttf-unifont
