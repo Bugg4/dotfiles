@@ -71,7 +71,6 @@ jq
 keepassxc
 kumono
 lazygit
-libappindicator
 libopenraw
 linux
 linux-firmware
@@ -144,6 +143,7 @@ ripgrep
 rmpc
 rofi
 rustup
+s-tui
 samba
 sassc
 scrcpy
