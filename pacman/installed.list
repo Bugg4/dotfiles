@@ -44,13 +44,16 @@ fzf
 fzy
 gamescope
 ghostty
+gi-docgen
 git
 git-filter-repo
 github-cli
 gnuplot
+gperf
 gputest
 grim
 grub
+gst-plugins-bad
 gvfs
 gvfs-mtp
 hdparm
@@ -72,6 +75,7 @@ keepassxc
 kumono
 lazygit
 libopenraw
+libsoup
 linux
 linux-firmware
 linux-firmware-qlogic
@@ -142,6 +146,7 @@ reflector
 ripgrep
 rmpc
 rofi
+ruby-stdlib
 rustup
 samba
 sassc
@@ -172,6 +177,7 @@ ttf-noto-nerd
 ttf-unifont
 tumbler
 typst
+unifdef
 unimatrix-git
 unzip
 upd72020x-fw
