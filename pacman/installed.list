@@ -119,6 +119,7 @@ openssh
 os-prober
 p7zip-gui
 pacman-contrib
+pandoc-cli
 parallel
 pavucontrol
 perl-image-exiftool
