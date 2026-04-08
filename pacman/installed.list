@@ -119,7 +119,6 @@ openssh
 os-prober
 p7zip-gui
 pacman-contrib
-pandoc-cli
 parallel
 pavucontrol
 perl-image-exiftool
@@ -158,7 +157,6 @@ strace
 syncthing
 sysstat
 tcc
-texlive-pstricks
 thunar
 thunar-volman
 tidy
