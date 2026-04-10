@@ -26,6 +26,7 @@ alias dots='code $HOME/dotfiles'
 alias wine-runners='cd $HOME/.local/share/wine/runners'
 alias wine-prefixes='cd $HOME/.local/share/wine/prefixes'
 alias blog='cd $HOME/code/bulga-dev/blog'
+alias torrc-local='code $HOME/.local/share/torbrowser/tbb/x86_64/tor-browser/Browser/TorBrowser/Data/Tor/torrc'
 
 # wine
 alias wine-ew-affinity='rum ElementalWarriorWine-x86_64 $HOME/.local/share/wine/prefixes/affinity/'
