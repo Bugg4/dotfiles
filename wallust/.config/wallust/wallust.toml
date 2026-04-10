@@ -16,7 +16,7 @@ backend = "full"
 check_contrast = true
 
 # What color space to use to produce and select the most prominent colors:
-# lab - labmixed - lch - lchmixed
+# lab - labmixed - lch - lchmixed - salient - lchansi
 color_space = "lchmixed"
 
 # Use the most prominent colors in a way that makes sense, a scheme color palette:
@@ -26,7 +26,7 @@ color_space = "lchmixed"
 # softdark - softdark16 - softdarkcomp - softdarkcomp16
 # softlight - softlight16 - softlightcomp - softlightcomp16
 palette = "dark"
-saturation = 50
+saturation = 60
 threshold = 10
 
 # Ensures a "readable contrast" (OPTIONAL, disabled by default)
