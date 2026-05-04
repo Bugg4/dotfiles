@@ -42,6 +42,9 @@ alias cp='cp -i'
 alias ln='ln -i'
 alias rm='rm -I --preserve-root'
 
+# cp progress
+alias cp-prog='rsync -ahP'
+
 alias cls='clear'
 
 # Parenting changing perms on /

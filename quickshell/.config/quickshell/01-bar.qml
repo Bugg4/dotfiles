@@ -391,7 +391,7 @@ ShellRoot {
                     Process {
                         id: netProcess
                         running: true
-                        command: ["python3", "network.py"]
+                        command: ["python3", "~/.config/quickshell/network.py"]
                         stdout: SplitParser {
                             onRead: data => {
                                 try {
@@ -439,7 +439,7 @@ ShellRoot {
 
                     Process {
                         id: netSelectProcess
-                        command: ["python3", "network.py", "--select"]
+                        command: ["python3", "~/.config/quickshell/network.py", "--select"]
                     }
                 }
 

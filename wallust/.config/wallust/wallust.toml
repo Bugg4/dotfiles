@@ -57,3 +57,4 @@ ghostty = { template = 'ghostty.wallust', target = '~/.config/ghostty/ghostty.co
 fuzzel = { template = 'fuzzel.wallust', target = '~/.config/fuzzel/fuzzel.colors.ini' }
 micro = { template = 'micro.wallust', target = '~/.config/micro/colorschemes/wallust-generated.micro' }
 rofi = { template = 'rofi.wallust', target = '~/.config/rofi/rofi.colors.rasi' }
+quickshell = { template = 'quickshell.wallust', target = '~/.config/quickshell/Colors.qml' }
