@@ -128,3 +128,4 @@ audio/x-aiff=mpv.desktop
 audio/x-matroska=mpv.desktop
 audio/x-ms-wma=mpv.desktop
 audio/x-wav=mpv.desktop
+x-scheme-handler/etcher=balenaEtcher.desktop

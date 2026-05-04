@@ -31,7 +31,7 @@ ignore_dbusclose = false
 force_xwayland = false
 
 # colors
-highlight = "#ECDD4B"
+highlight = "#ECDC3C"
 separator_color= "#FFF5EE"
 background = "#140F0F"
 
