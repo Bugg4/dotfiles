@@ -1,0 +1,11 @@
+import QtQuick
+
+pragma Singleton
+
+QtObject {
+    readonly property color base: '{{background}}'
+    readonly property color accent: '{{color4}}'
+    readonly property color separator: '#3f{{color4 | strip}}'
+    readonly property color text: '{{foreground}}'
+    readonly property color transparent: "transparent"
+}
