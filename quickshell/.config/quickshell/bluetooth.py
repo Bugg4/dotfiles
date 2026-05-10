@@ -1,0 +1,178 @@
+#!/usr/bin/env python3
+import json
+import time
+import sys
+import subprocess
+import os
+import re
+import pathlib
+
+# --- Configuration ---
+MENU_COMMAND = "fuzzel -d"
+PERSISTENT_FILE = os.path.join(
+    os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config")),
+    "quickshell/bluetooth.lastdev",
+)
+# ---------------------
+
+
+def get_bluetooth_devices():
+    """Returns a list of tuples (mac, name) for all paired devices."""
+    try:
+        result = subprocess.run(
+            ["bluetoothctl", "devices"], capture_output=True, text=True, check=True
+        )
+        devices = []
+        for line in result.stdout.strip().split("\n"):
+            parts = line.split(maxsplit=2)
+            if len(parts) >= 3 and parts[0] == "Device":
+                mac = parts[1]
+                name = parts[2]
+                devices.append((mac, name))
+        return devices
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return []
+
+
+def select_device():
+    """Shows a menu to select a bluetooth device and saves the MAC."""
+    devices = get_bluetooth_devices()
+    if not devices:
+        return
+
+    menu_entries = []
+    for mac, name in devices:
+        menu_entries.append(f"{name} ({mac})")
+
+    menu_input = "\n".join(menu_entries).encode("utf-8")
+
+    try:
+        process = subprocess.run(
+            MENU_COMMAND.split(), input=menu_input, capture_output=True, check=True
+        )
+        selected_entry = process.stdout.decode("utf-8").strip()
+
+        if selected_entry and "(" in selected_entry:
+            mac = selected_entry.rsplit("(", 1)[1].strip(")")
+            if len(mac.split(":")) == 6:
+                try:
+                    pathlib.Path(os.path.dirname(PERSISTENT_FILE)).mkdir(
+                        parents=True, exist_ok=True
+                    )
+                    with open(PERSISTENT_FILE, "w") as pf:
+                        pf.write(mac)
+                    
+                    # Attempt to connect to the selected device
+                    subprocess.run(["bluetoothctl", "connect", mac], check=False)
+                except Exception:
+                    pass
+
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
+
+
+def get_target_device_mac():
+    """Reads the selected MAC address from persistent file."""
+    if os.path.exists(PERSISTENT_FILE):
+        with open(PERSISTENT_FILE, "r") as f:
+            return f.read().strip()
+    return None
+
+
+def get_device_info(mac):
+    """Gets alias and battery percentage for the MAC."""
+    try:
+        result = subprocess.run(
+            ["bluetoothctl", "info", mac], capture_output=True, text=True, check=True
+        )
+        output = result.stdout
+        connected = "Connected: yes" in output
+        alias_match = re.search(r"Alias:\s*(.*)", output)
+        alias = alias_match.group(1) if alias_match else mac
+        battery = None
+        batt_match = re.search(r"Battery Percentage:.*\((.*)\)", output)
+        if batt_match:
+            try:
+                battery = int(batt_match.group(1))
+            except ValueError:
+                pass
+        return alias, battery, connected
+    except subprocess.CalledProcessError:
+        return None, None, False
+
+
+def get_battery_icon(percent):
+    """Returns a battery icon based on percentage."""
+    if percent is None:
+        return ""
+    if percent >= 90:
+        return ""
+    if percent >= 60:
+        return ""
+    if percent >= 40:
+        return ""
+    if percent >= 10:
+        return ""
+    return ""
+
+
+def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "--select":
+        select_device()
+        sys.exit(0)
+
+    while True:
+        try:
+            target_mac = get_target_device_mac()
+
+            if not target_mac:
+                output = {
+                    "text": "Select",
+                    "alt": "",
+                    "tooltip": "No device selected. Click to choose a Bluetooth device.",
+                    "connected": False
+                }
+                print(json.dumps(output), flush=True)
+                time.sleep(5)
+                continue
+
+            alias, battery, connected = get_device_info(target_mac)
+
+            if alias is None:
+                output = {"text": "Error", "alt": "⚠", "tooltip": "Could not query bluetoothctl", "connected": False}
+            elif not connected:
+                output = {
+                    "text": "Disconnected",
+                    "alt": "",
+                    "tooltip": f"{alias}\nMAC: {target_mac}\nStatus: Disconnected",
+                    "connected": False
+                }
+            elif battery is not None:
+                icon = get_battery_icon(battery)
+                output = {
+                    "text": f"{battery}%",
+                    "alt": icon,
+                    "tooltip": f"{alias}\nMAC: {target_mac}\nBattery: {battery}%",
+                    "connected": True
+                }
+            else:
+                output = {
+                    "text": alias,
+                    "alt": "",
+                    "tooltip": f"{alias}\nMAC: {target_mac}\nNo battery data available",
+                    "connected": True
+                }
+
+            print(json.dumps(output), flush=True)
+            time.sleep(5)
+
+        except (KeyboardInterrupt, SystemExit):
+            break
+        except Exception as e:
+            error_output = {"text": "Error", "alt": "⚠", "tooltip": str(e), "connected": False}
+            print(json.dumps(error_output), flush=True)
+            time.sleep(5)
+
+
+if __name__ == "__main__":
+    main()

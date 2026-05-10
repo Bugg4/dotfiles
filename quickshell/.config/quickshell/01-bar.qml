@@ -11,6 +11,7 @@ ShellRoot {
     PopupWindow {
         id: calendarPopup
         visible: false
+        color: "transparent"
         implicitWidth: 320
         implicitHeight: 400
         
@@ -218,7 +219,7 @@ ShellRoot {
         color: Colors.transparent
 
         mask: Region {
-            item: barContainer
+            item: barBackground
         }
 
         QtObject {
@@ -263,6 +264,7 @@ ShellRoot {
 
         // Border + Background Rectangle
         Rectangle {
+            id: barBackground
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.right: parent.right
