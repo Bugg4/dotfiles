@@ -7,199 +7,12 @@ import QtQuick
 import QtQuick.Layouts
 
 ShellRoot {
-    // Calendar Popup Window
-    PopupWindow {
-        id: calendarPopup
-        visible: false
-        color: "transparent"
-        implicitWidth: 320
-        implicitHeight: 400
-        
-        onVisibleChanged: if (visible) calendarContent.forceActiveFocus()
-        
-        // Position above the date
-        anchor {
-            item: clockArea
-            edges: Edges.Bottom | Edges.Right
-            gravity: Edges.Top | Edges.Right
-            margins.bottom: 12
-        }
-
-        Rectangle {
-            id: calendarContent
-            anchors.fill: parent
-            color: Colors.base
-            border.color: Colors.accent
-            border.width: 1
-            radius: 12
-
-            focus: true
-            Keys.onEscapePressed: calendarPopup.visible = false
-
-            property date displayedDate: new Date()
-            property var months: ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"]
-            property var daysOfWeek: ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"]
-
-            Column {
-                anchors.fill: parent
-                anchors.margins: 15
-                spacing: 15
-
-                // Header
-                Item {
-                    width: parent.width
-                    height: 40
-                    
-                    Text {
-                        text: "󰃭 " + calendarContent.months[calendarContent.displayedDate.getMonth()] + " " + calendarContent.displayedDate.getFullYear()
-                        color: Colors.accent
-                        font.pixelSize: 20
-                        font.bold: true
-                        font.family: globals.fontFamily
-                        anchors.left: parent.left
-                        anchors.verticalCenter: parent.verticalCenter
-                    }
-
-                    Row {
-                        spacing: 15
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.right: parent.right
-
-                        Text {
-                            text: "󰅁"
-                            color: Colors.accent
-                            font.pixelSize: 24
-                            font.family: globals.iconFont
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: {
-                                    var d = calendarContent.displayedDate;
-                                    calendarContent.displayedDate = new Date(d.getFullYear(), d.getMonth() - 1, 1);
-                                }
-                            }
-                        }
-
-                        Text {
-                            text: "󰅂"
-                            color: Colors.accent
-                            font.pixelSize: 24
-                            font.family: globals.iconFont
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: {
-                                    var d = calendarContent.displayedDate;
-                                    calendarContent.displayedDate = new Date(d.getFullYear(), d.getMonth() + 1, 1);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Days of Week Header
-                Row {
-                    width: parent.width
-                    spacing: 0
-                    Repeater {
-                        model: calendarContent.daysOfWeek
-                        Text {
-                            width: parent.width / 7
-                            text: modelData
-                            color: Colors.accent
-                            horizontalAlignment: Text.AlignHCenter
-                            font.pixelSize: 12
-                            font.bold: true
-                            font.family: globals.fontFamily
-                        }
-                    }
-                }
-
-                // Days Grid
-                Grid {
-                    id: daysGrid
-                    width: parent.width
-                    columns: 7
-                    spacing: 0
-
-                    function getDays() {
-                        var d = calendarContent.displayedDate;
-                        var firstDay = new Date(d.getFullYear(), d.getMonth(), 1);
-                        var startOffset = (firstDay.getDay() + 6) % 7; // Monday start
-                        
-                        var days = [];
-                        // Prev month padding
-                        var prevMonthLast = new Date(d.getFullYear(), d.getMonth(), 0).getDate();
-                        for (var i = startOffset - 1; i >= 0; i--) {
-                            days.push({ day: prevMonthLast - i, current: false });
-                        }
-                        // Current month
-                        var daysInMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
-                        for (var i = 1; i <= daysInMonth; i++) {
-                            days.push({ day: i, current: true });
-                        }
-                        // Next month padding
-                        var remaining = 42 - days.length;
-                        for (var i = 1; i <= remaining; i++) {
-                            days.push({ day: i, current: false });
-                        }
-                        return days;
-                    }
-
-                    Repeater {
-                        model: daysGrid.getDays()
-
-                        Rectangle {
-                            width: daysGrid.width / 7
-                            height: 45
-                            color: "transparent"
-                            radius: 8
-
-                            property bool isToday: {
-                                var today = new Date();
-                                return modelData.current && 
-                                       modelData.day === today.getDate() && 
-                                       calendarContent.displayedDate.getMonth() === today.getMonth() && 
-                                       calendarContent.displayedDate.getFullYear() === today.getFullYear();
-                            }
-
-                            Rectangle {
-                                anchors.fill: parent
-                                anchors.margins: 4
-                                color: parent.isToday ? Colors.accent : "transparent"
-                                radius: 8
-                                opacity: 0.2
-                                visible: parent.isToday
-                            }
-
-                            Text {
-                                anchors.centerIn: parent
-                                text: modelData.day
-                                color: parent.isToday ? Colors.accent : (modelData.current ? Colors.text : Colors.separator)
-                                font.pixelSize: 14
-                                font.bold: parent.isToday
-                                font.family: globals.fontFamily
-                            }
-                            
-                            MouseArea {
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                onEntered: if (!parent.isToday) parent.color = "#15ffffff"
-                                onExited: parent.color = "transparent"
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
+    // Calendar Terminal Trigger
+    Process {
+        id: calProcess
+        command: ["alacritty", "-e", "sh", "-c", "cal; read"]
     }
 
-    HyprlandFocusGrab {
-        active: calendarPopup.visible
-        windows: [calendarPopup]
-        onCleared: calendarPopup.visible = false
-    }
 
     PanelWindow {
         id: panel
@@ -989,8 +802,8 @@ ShellRoot {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
-                            console.log("Clock clicked, toggling calendar");
-                            calendarPopup.visible = !calendarPopup.visible;
+                            console.log("Clock clicked, spawning calendar terminal");
+                            calProcess.running = true;
                         }
                         hoverEnabled: true
                         onEntered: clockArea.opacity = 0.8
