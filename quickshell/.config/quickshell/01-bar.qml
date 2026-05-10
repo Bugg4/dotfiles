@@ -1,10 +1,205 @@
 import Quickshell
+import Quickshell.Wayland
 import Quickshell.Services.Mpris
 import Quickshell.Hyprland
 import Quickshell.Io
 import QtQuick
+import QtQuick.Layouts
 
 ShellRoot {
+    // Calendar Popup Window
+    PopupWindow {
+        id: calendarPopup
+        visible: false
+        implicitWidth: 320
+        implicitHeight: 400
+        
+        onVisibleChanged: if (visible) calendarContent.forceActiveFocus()
+        
+        // Position above the date
+        anchor {
+            item: clockArea
+            edges: Edges.Bottom | Edges.Right
+            gravity: Edges.Top | Edges.Right
+            margins.bottom: 12
+        }
+
+        Rectangle {
+            id: calendarContent
+            anchors.fill: parent
+            color: Colors.base
+            border.color: Colors.accent
+            border.width: 1
+            radius: 12
+
+            focus: true
+            Keys.onEscapePressed: calendarPopup.visible = false
+
+            property date displayedDate: new Date()
+            property var months: ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"]
+            property var daysOfWeek: ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"]
+
+            Column {
+                anchors.fill: parent
+                anchors.margins: 15
+                spacing: 15
+
+                // Header
+                Item {
+                    width: parent.width
+                    height: 40
+                    
+                    Text {
+                        text: "󰃭 " + calendarContent.months[calendarContent.displayedDate.getMonth()] + " " + calendarContent.displayedDate.getFullYear()
+                        color: Colors.accent
+                        font.pixelSize: 20
+                        font.bold: true
+                        font.family: globals.fontFamily
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    Row {
+                        spacing: 15
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.right: parent.right
+
+                        Text {
+                            text: "󰅁"
+                            color: Colors.accent
+                            font.pixelSize: 24
+                            font.family: globals.iconFont
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    var d = calendarContent.displayedDate;
+                                    calendarContent.displayedDate = new Date(d.getFullYear(), d.getMonth() - 1, 1);
+                                }
+                            }
+                        }
+
+                        Text {
+                            text: "󰅂"
+                            color: Colors.accent
+                            font.pixelSize: 24
+                            font.family: globals.iconFont
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    var d = calendarContent.displayedDate;
+                                    calendarContent.displayedDate = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Days of Week Header
+                Row {
+                    width: parent.width
+                    spacing: 0
+                    Repeater {
+                        model: calendarContent.daysOfWeek
+                        Text {
+                            width: parent.width / 7
+                            text: modelData
+                            color: Colors.accent
+                            horizontalAlignment: Text.AlignHCenter
+                            font.pixelSize: 12
+                            font.bold: true
+                            font.family: globals.fontFamily
+                        }
+                    }
+                }
+
+                // Days Grid
+                Grid {
+                    id: daysGrid
+                    width: parent.width
+                    columns: 7
+                    spacing: 0
+
+                    function getDays() {
+                        var d = calendarContent.displayedDate;
+                        var firstDay = new Date(d.getFullYear(), d.getMonth(), 1);
+                        var startOffset = (firstDay.getDay() + 6) % 7; // Monday start
+                        
+                        var days = [];
+                        // Prev month padding
+                        var prevMonthLast = new Date(d.getFullYear(), d.getMonth(), 0).getDate();
+                        for (var i = startOffset - 1; i >= 0; i--) {
+                            days.push({ day: prevMonthLast - i, current: false });
+                        }
+                        // Current month
+                        var daysInMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+                        for (var i = 1; i <= daysInMonth; i++) {
+                            days.push({ day: i, current: true });
+                        }
+                        // Next month padding
+                        var remaining = 42 - days.length;
+                        for (var i = 1; i <= remaining; i++) {
+                            days.push({ day: i, current: false });
+                        }
+                        return days;
+                    }
+
+                    Repeater {
+                        model: daysGrid.getDays()
+
+                        Rectangle {
+                            width: daysGrid.width / 7
+                            height: 45
+                            color: "transparent"
+                            radius: 8
+
+                            property bool isToday: {
+                                var today = new Date();
+                                return modelData.current && 
+                                       modelData.day === today.getDate() && 
+                                       calendarContent.displayedDate.getMonth() === today.getMonth() && 
+                                       calendarContent.displayedDate.getFullYear() === today.getFullYear();
+                            }
+
+                            Rectangle {
+                                anchors.fill: parent
+                                anchors.margins: 4
+                                color: parent.isToday ? Colors.accent : "transparent"
+                                radius: 8
+                                opacity: 0.2
+                                visible: parent.isToday
+                            }
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: modelData.day
+                                color: parent.isToday ? Colors.accent : (modelData.current ? Colors.text : Colors.separator)
+                                font.pixelSize: 14
+                                font.bold: parent.isToday
+                                font.family: globals.fontFamily
+                            }
+                            
+                            MouseArea {
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                onEntered: if (!parent.isToday) parent.color = "#15ffffff"
+                                onExited: parent.color = "transparent"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+    HyprlandFocusGrab {
+        active: calendarPopup.visible
+        windows: [calendarPopup]
+        onCleared: calendarPopup.visible = false
+    }
+
     PanelWindow {
         id: panel
         anchors {
@@ -45,6 +240,27 @@ ShellRoot {
             return icons[cls] || "󰖲";
         }
 
+        // Helper to format tooltips with styled keys
+        function formatTooltip(text, isAudio) {
+            if (!text) return "";
+            var lines = text.split("\n");
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i];
+                if (isAudio && i === 0 && line.indexOf(":") === -1) {
+                    lines[i] = "<font color='#F59A4C'><b>" + line + "</b></font>";
+                } else {
+                    lines[i] = line.replace(/^([^:\n]+:)/, "<font color='#F59A4C'><b>$1</b></font>");
+                }
+            }
+            return lines.join("<br>");
+        }
+
+        // Helper to capitalize first letter
+        function capitalize(str) {
+            if (!str) return "";
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
         // Border + Background Rectangle
         Rectangle {
             anchors.bottom: parent.bottom
@@ -65,13 +281,14 @@ ShellRoot {
             height: 40
 
             // Logo
-            Image {
+            Text {
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.leftMargin: 20
-                source: "arch-accent.svg"
-                width: 24
-                height: 24
+                text: ""
+                color: Colors.accent
+                font.pixelSize: 24
+                font.family: globals.iconFont
             }
 
             // Separator after logo
@@ -292,7 +509,7 @@ ShellRoot {
                             onClicked: Hyprland.dispatch("workspace " + (index + 1))
                         }
 
-                        // Peek Popup
+                        // Peek Popup (Uniform Style)
                         Rectangle {
                             visible: wsMouseArea.containsMouse
                             anchors.bottom: parent.top
@@ -304,13 +521,7 @@ ShellRoot {
                             border.color: Colors.accent
                             border.width: 1
                             radius: 8
-                            opacity: visible ? 1.0 : 0.0
-
-                            Behavior on opacity {
-                                NumberAnimation {
-                                    duration: 150
-                                }
-                            }
+                            z: 100
 
                             Column {
                                 id: peekCol
@@ -372,8 +583,8 @@ ShellRoot {
                     running: true
                     repeat: true
                     onTriggered: {
-                        timeHour.text = Qt.formatDateTime(new Date(), "h:mm:ss");
-                        timeText.text = Qt.formatDateTime(new Date(), "dddd dd/MM/yy");
+                        timeHour.text = (new Date()).toLocaleString(Qt.locale("it_IT"), "HH:mm:ss");
+                        timeText.text = panel.capitalize((new Date()).toLocaleString(Qt.locale("it_IT"), "dddd dd/MM/yy"));
                     }
                 }
 
@@ -387,11 +598,12 @@ ShellRoot {
                     property string netText: "󰌙 Disconnected"
                     property string netIcon: ""
                     property string netClass: "disconnected"
+                    property string netTooltip: ""
 
                     Process {
                         id: netProcess
                         running: true
-                        command: ["python3", "~/.config/quickshell/network.py"]
+                        command: ["python3", Quickshell.shellDir + "/network.py"]
                         stdout: SplitParser {
                             onRead: data => {
                                 try {
@@ -399,6 +611,7 @@ ShellRoot {
                                     networkMonitor.netText = parsed.text || "󰌙 Disconnected";
                                     networkMonitor.netIcon = parsed.alt || "";
                                     networkMonitor.netClass = parsed.class || "disconnected";
+                                    networkMonitor.netTooltip = parsed.tooltip || "";
                                 } catch (e) {}
                             }
                         }
@@ -427,19 +640,46 @@ ShellRoot {
                     }
 
                     MouseArea {
+                        id: netMouseArea
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
                         hoverEnabled: true
                         onClicked: {
                             netSelectProcess.running = true;
                         }
-                        onEntered: parent.opacity = 0.8
-                        onExited: parent.opacity = 1.0
+                        onEntered: netRow.opacity = 0.8
+                        onExited: netRow.opacity = 1.0
+                    }
+
+                    // Network Tooltip (Uniform Style)
+                    Rectangle {
+                        visible: netMouseArea.containsMouse && networkMonitor.netTooltip !== ""
+                        anchors.bottom: parent.top
+                        anchors.bottomMargin: 12
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        width: netTooltipText.implicitWidth + 24
+                        height: netTooltipText.implicitHeight + 16
+                        color: Colors.base
+                        border.color: Colors.accent
+                        border.width: 1
+                        radius: 8
+                        z: 100
+
+                        Text {
+                            id: netTooltipText
+                            anchors.centerIn: parent
+                            text: panel.formatTooltip(networkMonitor.netTooltip, false)
+                            textFormat: Text.StyledText
+                            color: Colors.text
+                            font.pixelSize: 12
+                            font.family: globals.fontFamily
+                            lineHeight: 1.2
+                        }
                     }
 
                     Process {
                         id: netSelectProcess
-                        command: ["python3", "~/.config/quickshell/network.py", "--select"]
+                        command: ["python3", Quickshell.shellDir + "/network.py", "--select"]
                     }
                 }
 
@@ -453,169 +693,306 @@ ShellRoot {
 
                 // Audio (Volume)
                 Item {
-                    id: volume
-                    width: 80
+                    id: audioContainer
+                    width: audioWidget.implicitWidth
                     height: 40
                     anchors.verticalCenter: parent.verticalCenter
 
-                    property string volumeLevel: ""
-                    property bool muted: false
-                    property bool isToggling: false
-
-                    Process {
-                        id: volumeProcess
-                        running: true
-                        command: ["bash", "-c", "pactl subscribe | grep --line-buffered \"Event 'change' on sink\" | while read -r line; do pactl get-sink-volume @DEFAULT_SINK@ | grep -oE '[0-9]+%' | head -1; done"]
-                        stdout: SplitParser {
-                            onRead: data => {
-                                var vol = data.trim().replace('%', '');
-                                if (vol) {
-                                    volume.volumeLevel = vol;
-                                }
-                            }
-                        }
-                    }
-
-                    Process {
-                        id: initialVolume
-                        command: ["bash", "-c", "pactl get-sink-volume @DEFAULT_SINK@ | grep -oE '[0-9]+%' | head -1"]
-                        stdout: SplitParser {
-                            onRead: data => {
-                                var vol = data.trim().replace('%', '');
-                                if (vol) {
-                                    volume.volumeLevel = vol;
-                                }
-                            }
-                        }
-                    }
-
-                    Process {
-                        id: muteStatus
-                        command: ["bash", "-c", "pactl get-sink-mute @DEFAULT_SINK@ | grep -oE 'yes|no'"]
-                        stdout: SplitParser {
-                            onRead: data => {
-                                volume.muted = (data.trim() === "yes");
-                                if (volume.isToggling)
-                                    volume.isToggling = false;
-                            }
-                        }
-                    }
-
-                    Component.onCompleted: {
-                        initialVolume.running = true;
-                        muteStatus.running = true;
-                    }
+                    property string btTooltip: ""
 
                     Row {
-                        spacing: 5
+                        id: audioWidget
+                        spacing: 8
                         anchors.centerIn: parent
-                        clip: false
 
-                        Text {
-                            id: volumeIcon
-                            width: 28
-                            height: 28
-                            text: volume.muted ? "󰖁" : "󰕾"
-                            color: Colors.accent
-                            font.pixelSize: 20
-                            font.family: globals.iconFont
+                        property string volumeLevel: ""
+                        property bool muted: false
+                        property bool isToggling: false
+                        property string btText: ""
+                        property string btIcon: ""
+                        property bool btConnected: false
+
+                        Process {
+                            id: volumeProcess
+                            running: true
+                            command: ["bash", "-c", "pactl subscribe | grep --line-buffered \"Event 'change' on sink\" | while read -r line; do pactl get-sink-volume @DEFAULT_SINK@ | grep -oE '[0-9]+%' | head -1; done"]
+                            stdout: SplitParser {
+                                onRead: data => {
+                                    var vol = data.trim().replace('%', '');
+                                    if (vol) {
+                                        audioWidget.volumeLevel = vol;
+                                    }
+                                }
+                            }
+                        }
+
+                        Process {
+                            id: initialVolume
+                            command: ["bash", "-c", "pactl get-sink-volume @DEFAULT_SINK@ | grep -oE '[0-9]+%' | head -1"]
+                            stdout: SplitParser {
+                                onRead: data => {
+                                    var vol = data.trim().replace('%', '');
+                                    if (vol) {
+                                        audioWidget.volumeLevel = vol;
+                                    }
+                                }
+                            }
+                        }
+
+                        Process {
+                            id: muteStatus
+                            command: ["bash", "-c", "pactl get-sink-mute @DEFAULT_SINK@ | grep -oE 'yes|no'"]
+                            stdout: SplitParser {
+                                onRead: data => {
+                                    audioWidget.muted = (data.trim() === "yes");
+                                    if (audioWidget.isToggling)
+                                        audioWidget.isToggling = false;
+                                }
+                            }
+                        }
+
+                        Timer {
+                            id: muteStatusRefresh
+                            interval: 150
+                            repeat: false
+                            onTriggered: {
+                                muteStatus.running = true;
+                                audioWidget.isToggling = false;
+                            }
+                        }
+
+                        Process {
+                            id: muteToggle
+                            command: []
+                        }
+
+                        Process {
+                            id: btProcess
+                            running: true
+                            command: ["python3", Quickshell.shellDir + "/bluetooth.py"]
+                            stdout: SplitParser {
+                                onRead: data => {
+                                    try {
+                                        var parsed = JSON.parse(data);
+                                        audioWidget.btText = parsed.text || "";
+                                        audioWidget.btIcon = parsed.alt || "";
+                                        audioWidget.btConnected = parsed.connected || false;
+                                        audioContainer.btTooltip = parsed.tooltip || "";
+                                    } catch (e) {}
+                                }
+                            }
+                        }
+
+                        Process {
+                            id: btSelectProcess
+                            command: ["python3", Quickshell.shellDir + "/bluetooth.py", "--select"]
+                        }
+
+                        Component.onCompleted: {
+                            initialVolume.running = true;
+                            muteStatus.running = true;
+                        }
+
+                        // Volume Section
+                        Item {
+                            width: volRowInternal.implicitWidth
+                            height: 40
                             anchors.verticalCenter: parent.verticalCenter
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
+
+                            Row {
+                                id: volRowInternal
+                                spacing: 5
+                                anchors.verticalCenter: parent.verticalCenter
+
+                                Text {
+                                    id: volumeIcon
+                                    width: 28
+                                    height: 28
+                                    text: audioWidget.muted ? "󰖁" : "󰕾"
+                                    color: Colors.accent
+                                    font.pixelSize: 20
+                                    font.family: globals.iconFont
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+
+                                Text {
+                                    id: volumeText
+                                    text: audioWidget.volumeLevel ? audioWidget.volumeLevel + "%" : "--"
+                                    color: Colors.text
+                                    font.pixelSize: 16
+                                    font.family: globals.fontFamily
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+                            }
 
                             MouseArea {
+                                id: volMouseArea
                                 anchors.fill: parent
+                                acceptedButtons: Qt.LeftButton | Qt.RightButton
                                 cursorShape: Qt.PointingHandCursor
                                 hoverEnabled: true
 
                                 onClicked: {
-                                    if (volume.isToggling)
-                                        return;
-                                    volume.isToggling = true;
-                                    muteToggle.command = ["bash", "-c", "pactl set-sink-mute @DEFAULT_SINK@ toggle"];
-                                    muteToggle.running = true;
-                                    volume.muted = !volume.muted;
-                                    muteStatusRefresh.start();
+                                    if (mouse.button === Qt.RightButton) {
+                                        if (audioWidget.isToggling)
+                                            return;
+                                        audioWidget.isToggling = true;
+                                        muteToggle.command = ["bash", "-c", "pactl set-sink-mute @DEFAULT_SINK@ toggle"];
+                                        muteToggle.running = true;
+                                        audioWidget.muted = !audioWidget.muted;
+                                        muteStatusRefresh.start();
+                                    } else {
+                                        btSelectProcess.running = true;
+                                    }
                                 }
 
                                 onEntered: parent.opacity = 0.6
                                 onExited: parent.opacity = 1.0
-
-                                Timer {
-                                    id: muteStatusRefresh
-                                    interval: 150
-                                    repeat: false
-                                    onTriggered: {
-                                        muteStatus.running = true;
-                                        volume.isToggling = false;
-                                    }
-                                }
-
-                                Process {
-                                    id: muteToggle
-                                    command: []
-                                }
                             }
                         }
 
+                        // Bluetooth Section
+                        Item {
+                            width: btRowInternal.implicitWidth
+                            height: 40
+                            visible: audioWidget.btConnected
+                            anchors.verticalCenter: parent.verticalCenter
+
+                            Row {
+                                id: btRowInternal
+                                spacing: 5
+                                anchors.verticalCenter: parent.verticalCenter
+
+                                Text {
+                                    text: audioWidget.btIcon
+                                    color: Colors.accent
+                                    font.pixelSize: 20
+                                    font.family: globals.iconFont
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+                                Text {
+                                    text: audioWidget.btText
+                                    color: Colors.text
+                                    font.pixelSize: 16
+                                    font.family: globals.fontFamily
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+                            }
+
+                            MouseArea {
+                                id: btMouseArea
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: btSelectProcess.running = true
+                                hoverEnabled: true
+                                onEntered: parent.opacity = 0.6
+                                onExited: parent.opacity = 1.0
+                            }
+                        }
+                    }
+
+                    // Audio Tooltip (Uniform Style)
+                    Rectangle {
+                        visible: (volMouseArea.containsMouse || btMouseArea.containsMouse) && audioContainer.btTooltip !== ""
+                        anchors.bottom: parent.top
+                        anchors.bottomMargin: 12
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        width: btTooltipText.implicitWidth + 24
+                        height: btTooltipText.implicitHeight + 16
+                        color: Colors.base
+                        border.color: Colors.accent
+                        border.width: 1
+                        radius: 8
+                        z: 100
+
                         Text {
-                            id: volumeText
-                            text: volume.volumeLevel ? volume.volumeLevel + "%" : "--"
+                            id: btTooltipText
+                            anchors.centerIn: parent
+                            text: panel.formatTooltip(audioContainer.btTooltip, true)
+                            textFormat: Text.StyledText
+                            color: Colors.text
+                            font.pixelSize: 12
+                            font.family: globals.fontFamily
+                            lineHeight: 1.2
+                        }
+                    }
+                }
+
+                // Separator
+                Rectangle {
+                    width: 2
+                    height: 30
+                    color: Colors.separator
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+
+                // Clock Area (Date + Time)
+                Item {
+                    id: clockArea
+                    width: clockRow.implicitWidth
+                    height: 40
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    Row {
+                        id: clockRow
+                        spacing: 15
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        // Date
+                        Text {
+                            id: timeText
+                            text: panel.capitalize((new Date()).toLocaleString(Qt.locale("it_IT"), "dddd dd/MM/yy"))
                             color: Colors.text
                             font.pixelSize: 16
                             font.family: globals.fontFamily
                             anchors.verticalCenter: parent.verticalCenter
                         }
-                    }
-                }
 
-                // Separator
-                Rectangle {
-                    width: 2
-                    height: 30
-                    color: Colors.separator
-                    anchors.verticalCenter: parent.verticalCenter
-                }
+                        // Separator
+                        Rectangle {
+                            width: 2
+                            height: 30
+                            color: Colors.separator
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
 
-                // Date
-                Text {
-                    id: timeText
-                    text: Qt.formatDateTime(new Date(), "dddd dd/MM/yy")
-                    color: Colors.text
-                    font.pixelSize: 16
-                    font.family: globals.fontFamily
-                    anchors.verticalCenter: parent.verticalCenter
-                }
+                        // Time
+                        Row {
+                            spacing: 10
+                            anchors.verticalCenter: parent.verticalCenter
 
-                // Separator
-                Rectangle {
-                    width: 2
-                    height: 30
-                    color: Colors.separator
-                    anchors.verticalCenter: parent.verticalCenter
-                }
+                            Text {
+                                text: "󰥔"
+                                color: Colors.accent
+                                font.pixelSize: 20
+                                font.family: globals.iconFont
+                                anchors.verticalCenter: parent.verticalCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
 
-                // Time
-                Row {
-                    spacing: 10
-                    anchors.verticalCenter: parent.verticalCenter
-
-                    Text {
-                        text: "󰥔"
-                        color: Colors.accent
-                        font.pixelSize: 20
-                        font.family: globals.iconFont
-                        anchors.verticalCenter: parent.verticalCenter
-                        verticalAlignment: Text.AlignVCenter
+                            Text {
+                                id: timeHour
+                                text: (new Date()).toLocaleString(Qt.locale("it_IT"), "HH:mm:ss")
+                                color: Colors.text
+                                font.pixelSize: 16
+                                font.family: globals.fontFamily
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
+                        }
                     }
 
-                    Text {
-                        id: timeHour
-                        text: Qt.formatDateTime(new Date(), "h:mma")
-                        color: Colors.text
-                        font.pixelSize: 16
-                        font.family: globals.fontFamily
-                        anchors.verticalCenter: parent.verticalCenter
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            console.log("Clock clicked, toggling calendar");
+                            calendarPopup.visible = !calendarPopup.visible;
+                        }
+                        hoverEnabled: true
+                        onEntered: clockArea.opacity = 0.8
+                        onExited: clockArea.opacity = 1.0
                     }
                 }
             }
