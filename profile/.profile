@@ -24,3 +24,8 @@ export ELECTRON_OZONE_PLATFORM_HINT=wayland
 if [ -z "$DISPLAY" ] && [ "$XDG_VTNR" = 1 ]; then
   exec start-hyprland
 fi
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/home/marco/.lmstudio/bin"
+# End of LM Studio CLI section
+
