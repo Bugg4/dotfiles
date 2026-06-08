@@ -25,5 +25,23 @@
                 }
             }
         }
+    },
+    "mcp": {
+        "postgres": {
+            "type": "local",
+            "command": ["npx", "-y", "@yawlabs/postgres-mcp@latest"],
+            "environment": {
+                "DATABASE_URL": "{env:DATABASE_URL}"
+            },
+            "enabled": true
+        },
+        "mongo": {
+            "type": "local",
+            "command": ["npx", "-y", "mongodb-mcp-server@latest", "--readOnly"],
+            "environment": {
+                "MDB_MCP_CONNECTION_STRING": "{env:MONGODB_URI}"
+            },
+            "enabled": true
+        }
     }
 }
