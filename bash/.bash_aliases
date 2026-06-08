@@ -33,7 +33,7 @@ alias wine-ew-affinity='rum ElementalWarriorWine-x86_64 $HOME/.local/share/wine/
 alias wine-affinity-new='WINEPREFIX="$HOME/.local/share/wine/prefixes/affinity-new"'
 
 # git
-alias gsb='git checkout $(git branch | fzf)'
+alias gsb='git checkout $(git branch --all | fzf)'
 alias gor='git-open-remote'
 
 # confirmation
