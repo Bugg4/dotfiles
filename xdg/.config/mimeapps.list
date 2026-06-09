@@ -129,3 +129,4 @@ audio/x-matroska=mpv.desktop
 audio/x-ms-wma=mpv.desktop
 audio/x-wav=mpv.desktop
 x-scheme-handler/etcher=balenaEtcher.desktop
+x-scheme-handler/antigravity=antigravity.desktop
