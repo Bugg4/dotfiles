@@ -140,6 +140,7 @@ pstoedit
 python-matplotlib
 python-pandas
 python-psutil
+python-pyaml
 python-pyftpdlib
 python-tinycss2
 qbittorrent
