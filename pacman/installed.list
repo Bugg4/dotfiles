@@ -2,8 +2,7 @@
 aic94xx-firmware
 alacritty-graphics
 amd-ucode
-antigravity-cli-bin
-antigravity-ide
+antigravity-cli
 archlinux-xdg-menu
 aria2
 arronax
@@ -22,6 +21,7 @@ brave-bin
 btop
 chafa
 chntpw
+chromium
 command-code
 copyparty
 cowsay
@@ -43,6 +43,8 @@ fastfetch
 ffmpegthumbnailer
 figlet
 firefox
+freerdp
+freerdp2
 fuzzel
 fzf
 fzy
@@ -52,6 +54,7 @@ git
 git-filter-repo
 github-cli
 gnuplot
+godot
 gputest
 grim
 grub
@@ -129,6 +132,7 @@ pacman-contrib
 parallel
 pavucontrol
 perl-image-exiftool
+pi-coding-agent
 pipes.c
 pipewire
 pipewire-pulse
