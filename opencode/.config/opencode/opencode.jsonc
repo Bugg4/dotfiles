@@ -1,6 +1,6 @@
 {
     "$schema": "https://opencode.ai/config.json",
-    "share":"disabled",
+    "share": "disabled",
     "permission": {
         "edit": "allow",
         "grep": "allow",
@@ -80,6 +80,11 @@
             "environment": {
                 "MDB_MCP_CONNECTION_STRING": "{env:MONGODB_URI}"
             },
+            "enabled": true
+        },
+        "pdf-reader": {
+            "type": "local",
+            "command": ["npx", "-y", "@sylphx/pdf-reader-mcp"],
             "enabled": true
         }
     },
