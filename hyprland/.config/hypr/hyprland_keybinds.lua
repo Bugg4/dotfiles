@@ -57,11 +57,9 @@ hl.bind(mainMod .. " + S", hl.dsp.layout("togglesplit"))
 hl.bind(mainMod .. " + W", hl.dsp.layout("swapsplit"))
 hl.bind(mainMod .. " + L", hl.dsp.window.float({ action = "toggle" }))
 
--- Scrolling layout messages
-hl.bind("SUPER + SHIFT + left",  hl.dsp.layout("move -col"))
-hl.bind("SUPER + SHIFT + right", hl.dsp.layout("move +col"))
-hl.bind("SUPER + SHIFT + right", hl.dsp.layout("colresize +0.2"))
-hl.bind("SUPER + SHIFT + left",  hl.dsp.layout("colresize -0.2"))
+-- Scrolling layout: resize columns with SUPER + ALT + SHIFT + left/right
+hl.bind(mainMod .. " + ALT + SHIFT + left",  hl.dsp.layout("colresize -0.2"))
+hl.bind(mainMod .. " + ALT + SHIFT + right", hl.dsp.layout("colresize +0.2"))
 
 -- Laptop multimedia keys for volume and LCD brightness (locked and repeating)
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 2%+"), { locked = true, repeating = true })

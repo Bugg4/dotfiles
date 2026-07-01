@@ -1,34 +1,18 @@
 [Added Associations]
 inode/directory=thunar.desktop;
 image/png=imv.desktop;
-image/svg+xml=org.inkscape.Inkscape.desktop;
+image/svg+xml=org.inkscape.Inkscape.desktop;firefox.desktop;
 image/vnd.adobe.photoshop=7zFM.desktop;
 text/plain=code.desktop;
+text/csv=onlyoffice-desktopeditors.desktop;
 
 [Default Applications]
-
-# ----------
-# FILESYSTEM
-# ----------
-
 inode/directory=thunar.desktop;
-
-
-# ----------
-# PLAINTEXT
-# ----------
-
 text/x-csrc=code.desktop
 text/x-c++src=code.desktop
 text/x-shellscript=code.desktop
 application/json=code.desktop
 application/xml=code.desktop
-
-
-# ------
-# IMAGES
-# ------
-
 image/avif=imv.desktop
 image/gif=imv.desktop
 image/heif=imv.desktop
@@ -55,11 +39,6 @@ image/x-vsd=imv.desktop
 image/x-wmf=imv.desktop
 image/x-xbitmap=imv.desktop
 image/x-xcdr=imv.desktop
-
-# ------
-# VIDEOS
-# ------
-
 video/3gp=mpv.desktop
 video/3gpp=mpv.desktop
 video/3gpp2=mpv.desktop
@@ -110,11 +89,6 @@ video/x-ogm=mpv.desktop
 video/x-ogm+ogg=mpv.desktop
 video/x-theora=mpv.desktop
 video/x-theora+ogg=mpv.desktop
-
-# -----
-# AUDIO
-# -----
-
 audio/aac=mpv.desktop
 audio/flac=mpv.desktop
 audio/midi=mpv.desktop

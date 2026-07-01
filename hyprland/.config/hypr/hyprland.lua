@@ -2,17 +2,20 @@
 -- HYPRLAND LUA CONFIGURATION ENTRYPOINT
 -- #######################################################################################
 
--- Set up applications and paths
-status_bar = "quickshell -d -p ~/.config/quickshell/01-bar.qml"
-terminal = "alacritty"
-fileManager = "thunar"
-fileManagerDaemon = "thunar --daemon"
-launcher = "fuzzel"
-browser = "brave"
-grimshot = "grimshot"
-emoji_picker = "/home/marco/code/emoji/emoji-picker /home/marco/code/emoji/unicode_17_emojis.json"
-notification_daemon = "dunst"
-gui_finder = "fsearch"
+-- Lua 5.5: Explicit global declarations from host and standard library
+global hl, require
+
+-- Configuration constants (read-only globals via <const> attribute)
+global<const> status_bar = "quickshell -d -p ~/.config/quickshell/01-bar.qml"
+global<const> terminal = "alacritty"
+global<const> fileManager = "thunar"
+global<const> fileManagerDaemon = "thunar --daemon"
+global<const> launcher = "fuzzel"
+global<const> browser = "brave"
+global<const> grimshot = "grimshot"
+global<const> emoji_picker = "/home/marco/code/emoji/emoji-picker /home/marco/code/emoji/unicode_17_emojis.json"
+global<const> notification_daemon = "dunst"
+global<const> gui_finder = "fsearch"
 
 -- Autostart services and programs
 hl.on("hyprland.start", function ()
