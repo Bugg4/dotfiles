@@ -103,6 +103,7 @@ mpv
 msedit
 mtools
 nano
+nanobind
 nb
 neovim
 nethogs
@@ -146,6 +147,7 @@ python-pandas
 python-psutil
 python-pyaml
 python-pyftpdlib
+python-scikit-build-core
 python-tinycss2
 qbittorrent
 qdirstat
