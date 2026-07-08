@@ -82,13 +82,24 @@
             },
             "enabled": true
         },
-        "pdf-reader": {
+        "pdf_reader": {
             "type": "local",
             "command": ["npx", "-y", "@sylphx/pdf-reader-mcp"],
+            "enabled": true
+        },
+        "playwright": {
+            "type": "local",
+            "command": [
+                "npx",
+                "@playwright/mcp@latest",
+                "--extension",
+                "--executable-path",
+                "/opt/brave-bin/brave"
+            ],
             "enabled": true
         }
     },
     "plugin": [
-      "@tarquinen/opencode-dcp@latest"
+        "@tarquinen/opencode-dcp@latest"
     ]
 }
