@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+summarize=false
+model="opencode-go/deepseek-v4-flash"
+date_input=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -s|--summarize) summarize=true ;;
+    -m|--model) model="$2"; shift ;;
+    *) date_input="$1" ;;
+  esac
+  shift
+done
+
+date_input="${date_input:-today}"
+date_ymd=
+
+case "$date_input" in
+  today)     date_ymd="$(date +%F)" ;;
+  yesterday) date_ymd="$(date -d yesterday +%F)" ;;
+  *)
+    if [[ "$date_input" =~ ^([0-9]{1,2})[/-]([0-9]{1,2})[/-]([0-9]{2,4})$ ]]; then
+      d="${BASH_REMATCH[1]}"
+      m="${BASH_REMATCH[2]}"
+      y="${BASH_REMATCH[3]}"
+      [ "${#y}" -eq 2 ] && y="20$y"
+      date_ymd="$y-$m-$d"
+    else
+      date_ymd="$date_input"
+    fi
+    ;;
+esac
+
+raw_output="$(printf '%s\n' "$date_ymd")"$'\n'
+found=0
+for r in ANDROID GPS_FW WEB; do
+  repo="$HOME/OLMEDO/$r"
+  [ -d "$repo/.git" ] || continue
+  output="$(git -C "$repo" log --all --source --author="Marco Bulgarelli" \
+    --since="$date_ymd 00:00:00" --until="$date_ymd 23:59:59" \
+    --format="%S|%h|%s" 2>/dev/null | sort -t'|' -k1,1 || true)"
+  if [ -n "$output" ]; then
+    found=1
+    raw_output+="==== $r ===="$'\n'
+    cur_branch=""
+    while IFS='|' read -r refs hash subj; do
+      branch="${refs}"
+      branch="${branch#refs/heads/}"
+      branch="${branch#refs/remotes/}"
+      branch="${branch:-—}"
+      if [ "$branch" != "$cur_branch" ]; then
+        cur_branch="$branch"
+        raw_output+="$cur_branch"$'\n'
+      fi
+      raw_output+="  $hash $subj"$'\n'
+    done <<< "$output" || true
+    raw_output+=$'\n'
+  fi
+done
+
+if [ "$found" -eq 0 ]; then
+  raw_output+="No commits found."$'\n'
+fi
+
+if $summarize; then
+  printf -- '%s' "$raw_output"
+  printf -- '\n%s ' "Sintesi ..."
+  spinner() {
+    local chars='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
+    while true; do
+      for ((i=0; i<${#chars}; i++)); do
+        printf -- '\b%s' "${chars:$i:1}"
+        sleep 0.1
+      done
+    done
+  }
+  spinner &
+  spinner_pid=$!
+  summary="$(opencode run -m "$model" --auto \
+    "Considerando il sommario git seguente, riassumi le mie attività per questa giornata.
+    Non scrivere nient'altro che non faccia parte del riassunto.
+    Raggruppa i punti per progetto, usando queste intestazioni:
+      "XLINK:" (per i commit sotto ANDROID)
+      "Olmedo Web:" (per i commit sotto WEB)
+      "FW GPS Ambitalia:" (per i commit sotto GPS_FW)
+    Ogni punto deve essere discorsivo e spiegare il contesto: non elencare file o termini tecnici
+    ma descrivi cosa è stato fatto e perché.
+    Usa il trattino (-) per gli elenchi puntati, non l'asterisco.
+    L'output deve essere in plain text, non usare formattazione markdown.
+    Vai a capo dopo ogni punto o elemento dell'elenco.
+    Scrivi in forma impersonale e concisa: 'Rimosso X' invece di 'ho rimosso X',
+    'Corretto Y causato da Z' invece di 'ho corretto Y'.
+$raw_output" 2>/dev/null)" || true
+  kill "$spinner_pid" 2>/dev/null || true
+  wait "$spinner_pid" 2>/dev/null || true
+  printf -- '\b \n\n'
+  printf -- '-----------------------------------\n'
+  printf -- '%s\n' "$summary"
+
+  report_dir="$HOME/Notes/daily-reports"
+  report_file="${report_dir}/report-$(date -d "$date_ymd" '+%Y-%m-%d').txt"
+  mkdir -p "$report_dir"
+  if [ -f "$report_file" ]; then
+    printf -- '\n%s ' "Report già esistente. Sovrascrivo? [y/N] "
+    read -r answer || true
+    if [[ ! "$answer" =~ ^[Yy] ]]; then
+      printf -- 'Saltato.\n'
+      exit 0
+    fi
+  fi
+  {
+    printf -- '%s\n' "$raw_output"
+    printf -- '%s\n' "$summary"
+  } > "$report_file"
+  printf -- 'Saved to %s\n' "$report_file"
+else
+  printf -- '%s' "$raw_output"
+fi
