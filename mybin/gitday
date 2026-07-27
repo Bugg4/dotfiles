@@ -1,13 +1,45 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Project and repository path. Relative paths are resolved from this script's directory.
+repositories=(
+  "XLINK|$HOME/OLMEDO/ANDROID"
+  "GPS|$HOME/OLMEDO/GPS_FW"
+  "WEB|$HOME/OLMEDO/WEB"
+  "NOTES|$HOME/Notes"
+)
+
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+declare -a projects=()
+declare -A repository_paths configured_projects
+for repository in "${repositories[@]}"; do
+  project="${repository%%|*}"
+  repo_path="${repository#*|}"
+  if [[ "$project" = "$repository" || -z "$project" || -z "$repo_path" ]]; then
+    printf 'Invalid repository entry: %s\n' "$repository" >&2
+    exit 1
+  fi
+  if [ -n "${configured_projects[$project]:-}" ]; then
+    printf 'Duplicate project name: %s\n' "$project" >&2
+    exit 1
+  fi
+  [[ "$repo_path" = /* ]] || repo_path="$script_dir/$repo_path"
+  projects+=("$project")
+  repository_paths["$project"]="$repo_path"
+  configured_projects["$project"]=1
+done
+project_list="$(printf '%s, ' "${projects[@]}")"
+project_list="${project_list%, }"
+
 summarize=false
+save=false
 model="opencode-go/deepseek-v4-flash"
 date_input=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -s|--summarize) summarize=true ;;
+    --save) save=true ;;
     -m|--model) model="$2"; shift ;;
     *) date_input="$1" ;;
   esac
@@ -33,77 +65,179 @@ case "$date_input" in
     ;;
 esac
 
-raw_output="$(printf '%s\n' "$date_ymd")"$'\n'
+format_duration() {
+  local seconds="$1"
+  local minutes=$(( (seconds + 30) / 60 ))
+  if (( minutes < 60 )); then
+    printf '%dm' "$minutes"
+  else
+    printf '%d.%dh' "$((minutes / 60))" "$(((minutes % 60 + 3) / 6))"
+  fi
+}
+
+print_commits() {
+  printf '%s\n' "$sorted_commits" |
+    while IFS='|' read -r _ time project branch hash subject; do
+      printf '%s|%s|%s|%s|%s\n' "$time" "$project" "$branch" "$hash" "$subject"
+    done |
+    column -t -s '|'
+}
+
+commit_lines=""
 found=0
-for r in ANDROID GPS_FW WEB; do
-  repo="$HOME/OLMEDO/$r"
+for project in "${projects[@]}"; do
+  repo="${repository_paths[$project]}"
   [ -d "$repo/.git" ] || continue
   output="$(git -C "$repo" log --all --source --author="Marco Bulgarelli" \
     --since="$date_ymd 00:00:00" --until="$date_ymd 23:59:59" \
-    --format="%S|%h|%s" 2>/dev/null | sort -t'|' -k1,1 || true)"
-  if [ -n "$output" ]; then
-    found=1
-    raw_output+="==== $r ===="$'\n'
-    cur_branch=""
-    while IFS='|' read -r refs hash subj; do
-      branch="${refs}"
-      branch="${branch#refs/heads/}"
-      branch="${branch#refs/remotes/}"
-      branch="${branch:-—}"
-      if [ "$branch" != "$cur_branch" ]; then
-        cur_branch="$branch"
-        raw_output+="$cur_branch"$'\n'
-      fi
-      raw_output+="  $hash $subj"$'\n'
-    done <<< "$output" || true
-    raw_output+=$'\n'
-  fi
+    --format="%S|%h|%at|%s" 2>/dev/null || true)"
+  [ -n "$output" ] || continue
+
+  found=1
+  while IFS='|' read -r refs hash epoch subject; do
+    branch="${refs#refs/heads/}"
+    branch="${branch#refs/remotes/}"
+    branch="${branch:---}"
+    time="$(date -d "@$epoch" +%H:%M:%S)"
+    commit_lines+="$epoch|$time|$project|$branch|$hash|$subject"$'\n'
+  done <<< "$output"
 done
 
 if [ "$found" -eq 0 ]; then
-  raw_output+="No commits found."$'\n'
+  printf -- '%s\n' "No commits found."
+  exit 0
 fi
 
-if $summarize; then
-  printf -- '%s' "$raw_output"
-  printf -- '\n%s ' "Sintesi ..."
-  spinner() {
-    local chars='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
-    while true; do
-      for ((i=0; i<${#chars}; i++)); do
-        printf -- '\b%s' "${chars:$i:1}"
-        sleep 0.1
-      done
-    done
-  }
-  spinner &
-  spinner_pid=$!
-  summary="$(opencode run -m "$model" --auto \
-    "Considerando il sommario git seguente, riassumi le mie attività per questa giornata.
-    Non scrivere nient'altro che non faccia parte del riassunto.
-    Raggruppa i punti per progetto, usando queste intestazioni:
-      "XLINK:" (per i commit sotto ANDROID)
-      "Olmedo Web:" (per i commit sotto WEB)
-      "FW GPS Ambitalia:" (per i commit sotto GPS_FW)
-    Ogni punto deve essere discorsivo e spiegare il contesto: non elencare file o termini tecnici
-    ma descrivi cosa è stato fatto e perché.
-    Usa il trattino (-) per gli elenchi puntati, non l'asterisco.
-    L'output deve essere in plain text, non usare formattazione markdown.
-    Vai a capo dopo ogni punto o elemento dell'elenco.
-    Scrivi in forma impersonale e concisa: 'Rimosso X' invece di 'ho rimosso X',
-    'Corretto Y causato da Z' invece di 'ho corretto Y'.
-$raw_output" 2>/dev/null)" || true
-  kill "$spinner_pid" 2>/dev/null || true
-  wait "$spinner_pid" 2>/dev/null || true
-  printf -- '\b \n\n'
-  printf -- '-----------------------------------\n'
-  printf -- '%s\n' "$summary"
+sorted_commits="$(printf '%s' "$commit_lines" | sort -n -t'|' -k1,1)"
 
+if ! $summarize; then
+  print_commits
+  exit 0
+fi
+
+declare -A commit_epoch commit_previous_epoch commit_seen
+llm_input=""
+previous_epoch=""
+while IFS='|' read -r epoch time project branch hash subject; do
+  commit_epoch["$project:$hash"]="$epoch"
+  commit_previous_epoch["$project:$hash"]="$previous_epoch"
+  previous_epoch="$epoch"
+  llm_input+="$time $project $branch $hash $subject"$'\n'
+done <<< "$sorted_commits"
+
+read -r -d '' prompt <<'PROMPT' || true
+Raggruppa i commit cronologici seguenti in attivita' di lavoro.
+
+Il tuo unico compito e' identificare le attivita' e assegnare a ciascuna un titolo
+conciso in italiano che riassuma il lavoro svolto. Non stimare tempi, non calcolare
+durate, non aggiungere commenti o totali.
+
+Regole:
+- Ogni commit deve comparire esattamente una volta in un gruppo.
+- Un gruppo puo' contenere solo commit dello stesso progetto.
+- Raggruppa commit adiacenti e concettualmente collegati; non unire lavori separati.
+- Usa gli hash esattamente come forniti.
+- Il titolo deve usare il participio passato, non l'infinito.
+  Esempi: 'Corretto bug X', 'Aggiunta funzionalita' Y', 'Rimosso Z'.
+- Il titolo deve spiegare cosa e' stato fatto e perche', senza elencare file.
+
+Rispondi esclusivamente con una riga per attivita', in questo formato esatto:
+ACTIVITY|PROJECT|hash1,hash2,hash3|Titolo dell'attivita'
+
+PROMPT
+prompt+=$'\nPROJECT deve essere uno tra: '"$project_list"$'. Non usare Markdown o blocchi di codice.'
+
+print_commits
+printf -- '\n%s ' "Sintesi ..."
+spinner() {
+  local chars='|/-\\'
+  while true; do
+    for ((i = 0; i < ${#chars}; i++)); do
+      printf -- '\b%s' "${chars:$i:1}"
+      sleep 0.1
+    done
+  done
+}
+spinner &
+spinner_pid=$!
+grouping="$(opencode run -m "$model" --auto \
+  "${prompt}"$'\n'"$llm_input" 2>/dev/null)" || true
+kill "$spinner_pid" 2>/dev/null || true
+wait "$spinner_pid" 2>/dev/null || true
+printf -- '\b \n\n'
+
+if [ -z "$grouping" ]; then
+  printf -- '%s\n' "No activity groups generated."
+  exit 1
+fi
+
+activity_lines=""
+declare -A project_seconds
+while IFS='|' read -r kind project hashes title; do
+  [ "$kind" = "ACTIVITY" ] || continue
+  [ -n "${configured_projects[$project]:-}" ] || continue
+  [ -n "$hashes" ] || continue
+  [ -n "$title" ] || continue
+
+  IFS=',' read -r -a activity_hashes <<< "$hashes"
+  start_epoch=""
+  end_epoch=""
+  duration_seconds=0
+  valid_group=true
+  for hash in "${activity_hashes[@]}"; do
+    key="$project:$hash"
+    if [ -z "${commit_epoch[$key]:-}" ] || [ -n "${commit_seen[$key]:-}" ]; then
+      valid_group=false
+      break
+    fi
+    commit_seen["$key"]=1
+    epoch="${commit_epoch[$key]}"
+    interval_start="${commit_previous_epoch[$key]}"
+    if [ -n "$interval_start" ]; then
+      duration_seconds=$((duration_seconds + epoch - interval_start))
+    else
+      interval_start="$epoch"
+    fi
+    [ -z "$start_epoch" ] || (( interval_start < start_epoch )) && start_epoch="$interval_start"
+    [ -z "$end_epoch" ] || (( epoch > end_epoch )) && end_epoch="$epoch"
+  done
+  $valid_group || continue
+
+  duration="$(format_duration "$duration_seconds")"
+  from="$(date -d "@$start_epoch" +%H:%M)"
+  to="$(date -d "@$end_epoch" +%H:%M)"
+  activity_lines+="$start_epoch|$from|$to|$duration|$project|$title"$'\n'
+  project_seconds["$project"]=$(( ${project_seconds[$project]:-0} + duration_seconds ))
+done <<< "$grouping"
+
+if [ -z "$activity_lines" ]; then
+  printf -- '%s\n' "No valid activity groups generated."
+  exit 1
+fi
+
+activity_output="$(printf '%s' "$activity_lines" | sort -n -t'|' -k1,1 |
+  while IFS='|' read -r _ from to duration project title; do
+    printf '%s|%s|%s|%s|%s\n' "$from" "$to" "$duration" "$project" "$title"
+  done | column -t -s '|')"
+
+total_seconds=0
+totals_output=""
+for project in "${projects[@]}"; do
+  seconds="${project_seconds[$project]:-0}"
+  [ "$seconds" -gt 0 ] || continue
+  totals_output+="$project $(format_duration "$seconds")"$'\n'
+  total_seconds=$((total_seconds + seconds))
+done
+totals_output+="TOTAL $(format_duration "$total_seconds")"
+
+printf -- '%s\n\n%s\n' "$activity_output" "$totals_output"
+
+if $save; then
   report_dir="$HOME/Notes/daily-reports"
   report_file="${report_dir}/report-$(date -d "$date_ymd" '+%Y-%m-%d').txt"
   mkdir -p "$report_dir"
   if [ -f "$report_file" ]; then
-    printf -- '\n%s ' "Report già esistente. Sovrascrivo? [y/N] "
+    printf -- '\n%s ' "Report gia' esistente. Sovrascrivo? [y/N] "
     read -r answer || true
     if [[ ! "$answer" =~ ^[Yy] ]]; then
       printf -- 'Saltato.\n'
@@ -111,10 +245,8 @@ $raw_output" 2>/dev/null)" || true
     fi
   fi
   {
-    printf -- '%s\n' "$raw_output"
-    printf -- '%s\n' "$summary"
+    print_commits
+    printf '\n%s\n\n%s\n' "$activity_output" "$totals_output"
   } > "$report_file"
   printf -- 'Saved to %s\n' "$report_file"
-else
-  printf -- '%s' "$raw_output"
 fi
