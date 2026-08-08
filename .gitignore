@@ -2,3 +2,4 @@
 **/mpv/**/*.glsl
 **/*.colors.*
 **/*.pyc
+mpv/.config/mpv/profile-state
