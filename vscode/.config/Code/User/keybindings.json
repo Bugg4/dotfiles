@@ -17,4 +17,12 @@
         "key": "shift+alt+p",
         "command": "editor.action.transformToPascalcase"
     },
+    {
+        "key": "ctrl+tab",
+        "command": "workbench.action.terminal.focusNext"
+    },
+    {
+        "key": "ctrl+shift+tab",
+        "command": "workbench.action.terminal.focusPrevious"
+    },
 ]
