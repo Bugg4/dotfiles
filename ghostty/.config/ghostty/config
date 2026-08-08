@@ -14,3 +14,17 @@ window-theme = dark
 shell-integration = bash
 
 config-file = ~/.config/ghostty/ghostty.colors.conf
+
+# ── Text Selection Keybindings ──────────────────────────────────
+# Shift+arrows           select char (already default)
+# Shift+Home/End         select to line start/end
+# Ctrl+Shift+A           select all
+# Ctrl+Shift+C           copy (default)
+# Ctrl+Shift+V           paste (default)
+# Ctrl+Backspace         delete word (handled by ~/.inputrc)
+#
+# Note: Ctrl+Shift+arrows for word selection not yet available in this release.
+
+keybind = shift+home=adjust_selection:beginning_of_line
+keybind = shift+end=adjust_selection:end_of_line
+keybind = ctrl+shift+a=select_all
