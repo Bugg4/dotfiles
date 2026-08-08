@@ -101,5 +101,13 @@
     },
     "plugin": [
         "@tarquinen/opencode-dcp@latest"
-    ]
+    ],
+    "agent": {
+        "explore": { "model": "opencode-go/deepseek-v4-flash" },
+        "researcher": { "model": "opencode-go/deepseek-v4-flash" },
+        "web-search": { "model": "opencode-go/deepseek-v4-flash" },
+        "plan": { "model": "opencode-go/deepseek-v4-flash" },
+        "build": { "model": "opencode-go/deepseek-v4-flash" },
+        "general": { "model": "opencode-go/deepseek-v4-flash" }
+    }
 }
