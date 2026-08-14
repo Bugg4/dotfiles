@@ -34,6 +34,25 @@ def get_bluetooth_devices():
         return []
 
 
+def get_connected_device_macs():
+    """Returns the MAC addresses of currently connected devices."""
+    try:
+        result = subprocess.run(
+            ["bluetoothctl", "devices", "Connected"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        devices = []
+        for line in result.stdout.splitlines():
+            parts = line.split(maxsplit=2)
+            if len(parts) >= 2 and parts[0] == "Device":
+                devices.append(parts[1])
+        return devices
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return []
+
+
 def select_device():
     """Shows a menu to select a bluetooth device and saves the MAC."""
     devices = get_bluetooth_devices()
@@ -61,7 +80,7 @@ def select_device():
                     )
                     with open(PERSISTENT_FILE, "w") as pf:
                         pf.write(mac)
-                    
+
                     # Attempt to connect to the selected device
                     subprocess.run(["bluetoothctl", "connect", mac], check=False)
                 except Exception:
@@ -123,45 +142,37 @@ def main():
 
     while True:
         try:
-            target_mac = get_target_device_mac()
+            connected_macs = get_connected_device_macs()
+            selected_mac = get_target_device_mac()
 
-            if not target_mac:
-                output = {
-                    "text": "Select",
-                    "alt": "",
-                    "tooltip": "No device selected. Click to choose a Bluetooth device.",
-                    "connected": False
-                }
-                print(json.dumps(output), flush=True)
-                time.sleep(5)
-                continue
+            # Keep the selected device first when it is currently connected.
+            if selected_mac in connected_macs:
+                connected_macs.remove(selected_mac)
+                connected_macs.insert(0, selected_mac)
 
-            alias, battery, connected = get_device_info(target_mac)
+            output = {
+                "text": "",
+                "alt": "",
+                "tooltip": "",
+                "connected": False,
+            }
 
-            if alias is None:
-                output = {"text": "Error", "alt": "⚠", "tooltip": "Could not query bluetoothctl", "connected": False}
-            elif not connected:
+            for mac in connected_macs:
+                alias, battery, connected = get_device_info(mac)
+                if alias is None or not connected:
+                    continue
+
                 output = {
-                    "text": "Disconnected",
-                    "alt": "",
-                    "tooltip": f"{alias}\nMAC: {target_mac}\nStatus: Disconnected",
-                    "connected": False
+                    "text": f"{battery}%" if battery is not None else alias,
+                    "alt": get_battery_icon(battery),
+                    "tooltip": (
+                        f"{alias}\nBattery: {battery}%"
+                        if battery is not None
+                        else f"{alias}\nBattery: unavailable"
+                    ),
+                    "connected": True,
                 }
-            elif battery is not None:
-                icon = get_battery_icon(battery)
-                output = {
-                    "text": f"{battery}%",
-                    "alt": icon,
-                    "tooltip": f"{alias}\nMAC: {target_mac}\nBattery: {battery}%",
-                    "connected": True
-                }
-            else:
-                output = {
-                    "text": alias,
-                    "alt": "",
-                    "tooltip": f"{alias}\nMAC: {target_mac}\nNo battery data available",
-                    "connected": True
-                }
+                break
 
             print(json.dumps(output), flush=True)
             time.sleep(5)
@@ -169,7 +180,12 @@ def main():
         except (KeyboardInterrupt, SystemExit):
             break
         except Exception as e:
-            error_output = {"text": "Error", "alt": "⚠", "tooltip": str(e), "connected": False}
+            error_output = {
+                "text": "Error",
+                "alt": "⚠",
+                "tooltip": str(e),
+                "connected": False,
+            }
             print(json.dumps(error_output), flush=True)
             time.sleep(5)
 

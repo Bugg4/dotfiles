@@ -582,6 +582,11 @@ ShellRoot {
                         }
 
                         Process {
+                            id: launchPavucontrol
+                            command: ["pavucontrol"]
+                        }
+
+                        Process {
                             id: btProcess
                             running: true
                             command: ["python3", Quickshell.shellDir + "/bluetooth.py"]
@@ -659,7 +664,7 @@ ShellRoot {
                                         audioWidget.muted = !audioWidget.muted;
                                         muteStatusRefresh.start();
                                     } else {
-                                        btSelectProcess.running = true;
+                                        launchPavucontrol.running = true;
                                     }
                                 }
 
