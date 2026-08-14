@@ -8,8 +8,7 @@ global hl, require
 -- Configuration constants (read-only globals via <const> attribute)
 global<const> status_bar = "quickshell -d -p ~/.config/quickshell/01-bar.qml"
 global<const> terminal = "alacritty"
-global<const> fileManager = "thunar"
-global<const> fileManagerDaemon = "thunar --daemon"
+global<const> fileManager = "dolphin"
 global<const> launcher = "fuzzel"
 global<const> browser = "brave"
 global<const> grimshot = "grimshot"
@@ -22,7 +21,6 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("hyprpaper")
     hl.exec_cmd(status_bar)
     hl.exec_cmd(notification_daemon)
-    hl.exec_cmd(fileManagerDaemon)
     hl.exec_cmd(terminal)
     hl.exec_cmd(browser)
 end)
