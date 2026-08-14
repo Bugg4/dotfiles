@@ -1,8 +1,8 @@
 {
-  "$schema": "https://opencode.ai/tui.json",
-  "keybinds": {
-    "input_submit": "return",
-    "input_newline": "shift+return"
-  },
-  "plugin": ["@adtention/opencode"]
+    "$schema": "https://opencode.ai/tui.json",
+    "keybinds": {
+        "input_submit": "return",
+        "input_newline": "shift+return"
+    },
+    "plugin": ["@adtention/opencode"]
 }

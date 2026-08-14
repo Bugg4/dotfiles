@@ -3,3 +3,5 @@
 **/*.colors.*
 **/*.pyc
 mpv/.config/mpv/profile-state
+**/*.log
+opencode/**/.playwright*/**
