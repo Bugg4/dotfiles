@@ -29,6 +29,7 @@ cowsay
 cpu-x
 dbeaver
 devtools
+dmidecode
 docker
 docker-compose
 dog
@@ -67,6 +68,7 @@ grub
 gvfs
 gvfs-mtp
 hdparm
+herdr-bin
 hfdownloader
 htmlq
 hugo
@@ -76,6 +78,7 @@ hyprpaper
 hyprpicker
 hyprutils
 hyprwayland-scanner
+i2c-tools
 impala
 imv
 inkscape
@@ -85,6 +88,7 @@ jq
 keepassxc
 kumono
 lazygit
+lftp
 libopenraw
 libreoffice-fresh
 linux
@@ -160,6 +164,7 @@ qdirstat
 quickshell
 rclone
 reflector
+ripdrag
 ripgrep
 rmpc
 rofi
@@ -180,8 +185,6 @@ strace
 syncthing
 sysstat
 tcc
-thunar
-thunar-volman
 tidy
 timeshift
 tinyxxd
@@ -225,6 +228,7 @@ wlogout
 wlr-randr
 xdg-desktop-portal-hyprland
 xmlstarlet
+y-cruncher
 yay-bin
 yazi
 yt-dlp
