@@ -1,9 +1,39 @@
 {
     "$schema": "https://opencode.ai/config.json",
-    "enabled_providers": ["lmstudio"],
+    "enabled_providers": [
+        "lmstudio"
+    ],
     "compaction": {
         "auto": true,
         "prune": true,
         "reserved": 10000
-    }
+    },
+    "mcp": {
+        "pdf_reader": {
+            "type": "local",
+            "command": [
+                "npx",
+                "-y",
+                "@sylphx/pdf-reader-mcp"
+            ],
+            "enabled": true
+        },
+        "playwright": {
+            "type": "local",
+            "command": [
+                "npx",
+                "@playwright/mcp@latest",
+                "--extension",
+                "--executable-path",
+                "/opt/brave-bin/brave"
+            ],
+            "enabled": true
+        }
+    },
+    "plugin": [
+        "@tarquinen/opencode-dcp@latest",
+        "./plugins/override-system-prompt.ts",
+        "opencode-lmstudio@latest",
+        "./plugins/filter-lmstudio-embeddings.ts"
+    ]
 }

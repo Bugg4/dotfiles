@@ -51,10 +51,50 @@
             // Models are auto-discovered from the running LM Studio server
             // (/v1/models) by the opencode-lmstudio plugin — no need to list
             // them here. Just load a model in LM Studio and restart opencode.
+        },
+        "llama.cpp": {
+            "npm": "@ai-sdk/openai-compatible",
+            "name": "llama.cpp (local, tuned)",
+            "options": {
+                "baseURL": "http://127.0.0.1:8080/v1"
+            },
+            "models": {
+                "qwen3.8-27b": {
+                    "name": "Qwen3.8 27B Q4_K_M (262K, local)",
+                    "family": "qwen",
+                    "temperature": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "interleaved": "reasoning_content",
+                    "modalities": {
+                        "input": ["text"],
+                        "output": ["text"]
+                    },
+                    "limit": {
+                        "context": 262144,
+                        "output": 32768
+                    }
+                },
+                "qwen3.8-27b-vram": {
+                    "name": "Qwen3.8 27B UD-Q3_K_XL (64K, all-VRAM)",
+                    "family": "qwen",
+                    "temperature": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "interleaved": "reasoning_content",
+                    "modalities": {
+                        "input": ["text"],
+                        "output": ["text"]
+                    },
+                    "limit": {
+                        "context": 65536,
+                        "output": 16384
+                    }
+                }
+            }
         }
     },
     "formatter": true,
-
     "watcher": {
         "ignore": [
             "node_modules/**",
@@ -69,11 +109,14 @@
             "target/**"
         ]
     },
-
     "mcp": {
         "pdf_reader": {
             "type": "local",
-            "command": ["npx", "-y", "@sylphx/pdf-reader-mcp"],
+            "command": [
+                "npx",
+                "-y",
+                "@sylphx/pdf-reader-mcp"
+            ],
             "enabled": true
         },
         "playwright": {
@@ -90,7 +133,6 @@
     },
     "plugin": [
         "@tarquinen/opencode-dcp@latest",
-        "./plugins/override-system-prompt.ts",
         "opencode-lmstudio@latest",
         "./plugins/filter-lmstudio-embeddings.ts"
     ]

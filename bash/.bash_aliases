@@ -13,6 +13,7 @@ alias ffmpeg='ffmpeg -hide_banner'
 alias reflector-refresh='sudo reflector --verbose --protocol https --latest 16 --sort rate --save /etc/pacman.d/mirrorlist && cat /etc/pacman.d/mirrorlist'
 alias kp='keepass-cli-wrapper $HOME/documents/keepass/keepass.kdbx'
 alias ag='antigravity'
+alias drag='ripdrag --no-click --resizable --icon-size 64 --and-exit'
 
 # quick sourcing
 alias sourcebash='source ${HOME}/.bashrc && printf "${HOME}/.bashrc sourced!\n"'

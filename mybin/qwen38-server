@@ -1,0 +1,123 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Qwen3.8-27B launcher tuned for this machine:
+# RTX 5070 Ti 16GB, Ryzen 9 9900X3D, 96GB system RAM.
+#
+# Usage:
+#   qwen38-server                 # native 262K context, F16 KV (quality-first)
+#   PROFILE=fast qwen38-server
+#   PROFILE=q8 qwen38-server
+#   PROFILE=vram qwen38-server     # 64K, fully GPU-resident, fastest
+#   VISION=1 qwen38-server
+#
+# Optional overrides: PORT, HOST, MODEL, MMPROJ, FIT_TARGET, PROFILE, VISION.
+# Additional command-line arguments are passed to llama-server last.
+
+MODEL="${MODEL:-}"
+MMPROJ="${MMPROJ:-$HOME/.lmstudio/models/lmstudio-community/Qwen3.8-27B-GGUF/mmproj-Qwen3.8-27B-BF16.gguf}"
+HOST="${HOST:-127.0.0.1}"
+PORT="${PORT:-8080}"
+PROFILE="${PROFILE:-full}"
+VISION="${VISION:-0}"
+FIT_TARGET="${FIT_TARGET:-1280}"
+
+mapfile -t runtime_dirs < <(printf '%s\n' "$HOME"/.lmstudio/extensions/backends/llama.cpp-linux-x86_64-nvidia-cuda12-avx2-* | sort -V)
+RUNTIME_DIR="${runtime_dirs[-1]}"
+SERVER="$RUNTIME_DIR/llama-server"
+VENDOR_DIR="$HOME/.lmstudio/extensions/backends/vendor/linux-llama-cuda12-vendor-v1"
+
+if [[ ! -x "$SERVER" ]]; then
+	printf 'llama-server not found at %s\n' "$SERVER" >&2
+	exit 1
+fi
+case "$PROFILE" in
+full)
+	DEFAULT_MODEL="$HOME/.lmstudio/models/lmstudio-community/Qwen3.8-27B-GGUF/Qwen3.8-27B-Q4_K_M.gguf"
+	CTX=262144
+	CACHE=f16
+	BATCH=8192
+	UBATCH=2048
+	ALIAS=qwen3.8-27b
+	gpu_args=(--gpu-layers auto --fit on --fit-target "$FIT_TARGET")
+	spec_args=(--spec-type draft-mtp --spec-draft-n-max 3 --spec-draft-type-k q8_0 --spec-draft-type-v q8_0)
+	;;
+fast)
+	DEFAULT_MODEL="$HOME/.lmstudio/models/lmstudio-community/Qwen3.8-27B-GGUF/Qwen3.8-27B-Q4_K_M.gguf"
+	CTX=131072
+	CACHE=f16
+	BATCH=8192
+	UBATCH=2048
+	ALIAS=qwen3.8-27b
+	gpu_args=(--gpu-layers auto --fit on --fit-target "$FIT_TARGET")
+	spec_args=(--spec-type draft-mtp --spec-draft-n-max 3 --spec-draft-type-k q8_0 --spec-draft-type-v q8_0)
+	;;
+q8)
+	DEFAULT_MODEL="$HOME/.lmstudio/models/lmstudio-community/Qwen3.8-27B-GGUF/Qwen3.8-27B-Q4_K_M.gguf"
+	CTX=262144
+	CACHE=q8_0
+	BATCH=8192
+	UBATCH=2048
+	ALIAS=qwen3.8-27b
+	gpu_args=(--gpu-layers auto --fit on --fit-target "$FIT_TARGET")
+	spec_args=(--spec-type draft-mtp --spec-draft-n-max 3 --spec-draft-type-k q8_0 --spec-draft-type-v q8_0)
+	;;
+vram)
+	DEFAULT_MODEL="$HOME/.lmstudio/models/unsloth/Qwen3.8-27B-GGUF/Qwen3.8-27B-UD-Q3_K_XL.gguf"
+	CTX=65536
+	CACHE=q4_0
+	BATCH=1024
+	UBATCH=256
+	ALIAS=qwen3.8-27b-vram
+	gpu_args=(--gpu-layers 999 --fit off)
+	spec_args=()
+	;;
+*)
+	printf 'Unknown PROFILE=%s (use full, fast, q8, or vram)\n' "$PROFILE" >&2
+	exit 2
+	;;
+esac
+
+MODEL="${MODEL:-$DEFAULT_MODEL}"
+
+if [[ ! -f "$MODEL" ]]; then
+	printf 'Model not found at %s\n' "$MODEL" >&2
+	exit 1
+fi
+
+if [[ "$PROFILE" == vram && "$VISION" == 1 ]]; then
+	printf 'PROFILE=vram is text-only: the vision projector does not fit with the 64K all-VRAM profile\n' >&2
+	exit 2
+fi
+
+vision_args=(--no-mmproj)
+if [[ "$VISION" == 1 ]]; then
+	if [[ ! -f "$MMPROJ" ]]; then
+		printf 'Vision projector not found at %s\n' "$MMPROJ" >&2
+		exit 1
+	fi
+	vision_args=(--mmproj "$MMPROJ")
+fi
+
+export LD_LIBRARY_PATH="$VENDOR_DIR${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+
+printf 'Starting Qwen3.8-27B: profile=%s ctx=%s cache=%s vision=%s\n' \
+	"$PROFILE" "$CTX" "$CACHE" "$VISION"
+
+exec "$SERVER" \
+	--model "$MODEL" \
+	"${vision_args[@]}" \
+	--ctx-size "$CTX" \
+	"${gpu_args[@]}" \
+	--flash-attn on --jinja \
+	--parallel 1 --threads 12 --threads-batch 24 \
+	--batch-size "$BATCH" --ubatch-size "$UBATCH" \
+	"${spec_args[@]}" \
+	--cache-type-k "$CACHE" --cache-type-v "$CACHE" \
+	--temperature 1.0 --top-p 0.95 --top-k 20 --min-p 0.0 \
+	--presence-penalty 0.0 \
+	--chat-template-kwargs '{"reasoning_effort":"medium"}' \
+	--reasoning-preserve \
+	--alias "$ALIAS" \
+	--host "$HOST" --port "$PORT" \
+	"$@"

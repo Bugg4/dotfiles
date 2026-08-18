@@ -105,3 +105,9 @@ lanip() {
 
 export -f qr
 export -f lanip
+
+# OpenCode profile for local LM Studio models.
+opencode-local() {
+    OPENCODE_CONFIG="$HOME/.config/opencode/opencode.local.jsonc" \
+    opencode "$@"
+}
