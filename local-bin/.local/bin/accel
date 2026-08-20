@@ -1,0 +1,269 @@
+#!/usr/bin/env python3
+
+# original at https://gist.github.com/yinonburgansky/7be4d0489a0df8c06a923240b8eb0191
+# modified for ease of use in Hyprland
+
+# calculations are based on http://www.esreality.com/index.php?a=post&id=1945096
+# assuming windows 10 uses the same calculation as windows 7.
+# guesses have been made calculation is not accurate
+# touchpad users make sure your touchpad is calibrated with `sudo libinput measure touchpad-size`
+
+import struct
+import argparse
+import sys
+import os
+import json
+import subprocess as sp
+import matplotlib.pyplot as plt
+
+
+def float16x16(num):
+    """
+    Converts a 64-bit binary string representing a 16.16 fixed-point number
+    into a floating-point number.
+    """
+    return struct.unpack("<i", num[:-4])[0] / 65536.0
+
+
+def find2points(x):
+    """
+    Finds the two control points in the 'points' list that
+    surround a given x-value for interpolation.
+    """
+    i = 0
+    while i < len(points) - 2 and x >= points[i + 1][0]:
+        i += 1
+    # Assert to ensure x is within the bounds of the selected segment
+    assert (
+        -1e6 + points[i][0] <= x <= points[i + 1][0] + 1e6
+    ), f"{points[i][0]} <= {x} <= {points[i+1][0]}"
+    return points[i], points[i + 1]
+
+
+def interpolate(x):
+    """
+    Performs linear interpolation between two points to find the y-value
+    corresponding to a given x-value.
+    """
+    (x0, y0), (x1, y1) = find2points(x)
+    if x1 - x0 == 0:
+        return y0
+    return ((x - x0) * y1 + (x1 - x) * y0) / (x1 - x0)
+
+
+def sample_points(count):
+    """
+    Generates a specified number of sample points along the acceleration curve
+    for use in Hyprland's custom acceleration profile.
+    """
+    last_point = -2  # Index of the second to last control point
+    max_x = points[last_point][0]  # Maximum x-value for sampling
+    step = max_x / (count + last_point)  # Calculate the step size for x-values
+    sample_points_x = [si * step for si in range(count)]  # Generate x-coordinates
+    sample_points_y = [
+        interpolate(x) for x in sample_points_x
+    ]  # Interpolate y-coordinates
+    return sample_points_x, sample_points_y
+
+
+def hyprctlkw(device_name, option, arg):
+    """
+    Constructs a hyprctl keyword command string.
+    """
+    return f"hyprctl keyword device[{device_name}]:{option} {arg} > /dev/null 2>&1"
+
+
+def detect_device_name():
+    """
+    Queries hyprctl devices -j and auto-detects the first active gaming or physical mouse.
+    """
+    try:
+        res = sp.run(["hyprctl", "devices", "-j"], capture_output=True, text=True, check=True)
+        data = json.loads(res.stdout)
+        mice = data.get("mice", [])
+        # Filter out keyboards masquerading as mice
+        filtered = [m["name"] for m in mice if "keyboard" not in m["name"].lower()]
+        if filtered:
+            return filtered[0]
+        elif mice:
+            return mice[0]["name"]
+    except Exception:
+        pass
+    return None
+
+
+if __name__ == "__main__":
+
+    # ===== PARAMETERS =====
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument(
+        "--device-dpi", default=1000, type=int, help="DPI of your mouse device."
+    )
+    parser.add_argument(
+        "--screen-dpi",
+        default=96,
+        type=int,
+        help="Screen DPI. You can calculate this using online tools like sven.de/dpi/.",
+    )
+    parser.add_argument(
+        "--screen-scaling-factor",
+        default=1,
+        type=float,
+        help="Hyprland's screen scaling factor. Note: 1 here often feels more accurate even if Hyprland scaling is set to 1.5.",
+    )
+    parser.add_argument(
+        "--sample-point-count",
+        default=20,
+        type=int,
+        help="Number of sample points to generate for the custom acceleration curve.",
+    )
+    parser.add_argument(
+        "--device-name",
+        default=None,
+        type=str,
+        help="Name of your mouse device. If omitted, the script will attempt to auto-detect the active mouse.",
+    )
+    parser.add_argument(
+        "--sensitivity-factor",
+        default=6,
+        type=int,
+        choices=range(1, 12),
+        help="""Sensitivity factor translation table for Windows' slider notches:
+    1 = 0.1
+    2 = 0.2
+    3 = 0.4
+    4 = 0.6
+    5 = 0.8
+    6 = 1.0 <- default
+    7 = 1.2
+    8 = 1.4
+    9 = 1.6
+    10 = 1.8
+    11 = 2.0
+        """,
+    )
+    parser.add_argument(
+        "--windows-notches",
+        action="store_true",
+        help="Use exact Windows slider notch speed multipliers (e.g. 5 = 0.8) instead of raw integers.",
+    )
+    parser.add_argument(
+        "--plot",
+        action="store_true",
+        help="Plot the Windows vs. Scaled acceleration curves interactively.",
+    )
+    parser.add_argument(
+        "--output-file",
+        type=str,
+        default=None,
+        help="Write the generated Lua code directly to this file.",
+    )
+
+    args = parser.parse_args()
+
+    # Determine sensitivity multiplier
+    if args.windows_notches:
+        notches_map = {
+            1: 0.1, 2: 0.2, 3: 0.4, 4: 0.6, 5: 0.8,
+            6: 1.0, 7: 1.2, 8: 1.4, 9: 1.6, 10: 1.8, 11: 2.0
+        }
+        multiplier = notches_map.get(args.sensitivity_factor, 1.0)
+    else:
+        multiplier = args.sensitivity_factor
+
+    # mouse speed: inch/s to device-units/millisecond
+    scale_x = args.device_dpi / 1000
+    # pointer speed: inch/s to screen pixels/millisecond
+    scale_y = (
+        (args.screen_dpi / 1000) / args.screen_scaling_factor * multiplier
+    )
+
+    # ===== VALUES EXTRACTED FROM WIN 10 REGISTRY =====
+    X = [
+        b"\x00\x00\x00\x00\x00\x00\x00\x00",
+        b"\x15\x6e\x00\x00\x00\x00\x00\x00",
+        b"\x00\x40\x01\x00\x00\x00\x00\x00",
+        b"\x29\xdc\x03\x00\x00\x00\x00\x00",
+        b"\x00\x00\x28\x00\x00\x00\x00\x00",
+    ]
+
+    Y = [
+        b"\x00\x00\x00\x00\x00\x00\x00\x00",
+        b"\xfd\x11\x01\x00\x00\x00\x00\x00",
+        b"\x00\x24\x04\x00\x00\x00\x00\x00",
+        b"\x00\xfc\x12\x00\x00\x00\x00\x00",
+        b"\x00\xc0\xbb\x01\x00\x00\x00\x00",
+    ]
+
+    windows_points = [[float16x16(x), float16x16(y)] for x, y in zip(X, Y)]
+    points = [[x * scale_x, y * scale_y] for x, y in windows_points]
+
+    sample_points_x, sample_points_y = sample_points(args.sample_point_count)
+    step = sample_points_x[1] - sample_points_x[0]
+    sample_points_str = " ".join(["%.3f" % number for number in sample_points_y])
+
+    # Resolve mouse device name
+    device_name = args.device_name
+    if not device_name:
+        device_name = detect_device_name()
+        if device_name:
+            print(f"[+] Auto-detected mouse device: '{device_name}'", file=sys.stderr)
+        else:
+            print("[-] Error: Mouse device could not be auto-detected. Please provide --device-name.", file=sys.stderr)
+            sys.exit(1)
+
+    # Apply configuration commands to active session
+    cmds = [
+        hyprctlkw(device_name, "accel_profile", f"custom {step} {sample_points_str}"),
+        hyprctlkw(device_name, "scroll_points", f"custom {step} {sample_points_str}"),
+    ]
+    for c in cmds:
+        sp.run(c, shell=True)
+
+    # Generate modern Lua snippet
+    clamped_sens = min(1.0, max(-1.0, float(multiplier)))
+    output_str = f"""-- =======================================================================================
+-- MOUSE ACCELERATION PROFILE (AUTOMATICALLY GENERATED)
+-- =======================================================================================
+-- Generated on:  2026-05-17
+-- Command:       {" ".join(sys.argv)}
+--
+-- Input & Generation Settings:
+--   Device Name:        {device_name}
+--   Device DPI:         {args.device_dpi} DPI
+--   Screen DPI:         {args.screen_dpi} DPI
+--   Screen Scaling:     {args.screen_scaling_factor}x
+--   Sample Points:      {args.sample_point_count}
+--   Sensitivity Factor: {args.sensitivity_factor} (raw multiplier: {multiplier:.2f})
+--   Windows Notches:    {args.windows_notches}
+-- =======================================================================================
+
+hl.device({{
+    name = "{device_name}",
+    sensitivity = {clamped_sens:.2f},
+    accel_profile = "custom {step} {sample_points_str}",
+    scroll_points = "custom {step} {sample_points_str}",
+}})"""
+
+    print(output_str)
+
+    # Write directly to file if requested
+    if args.output_file:
+        filepath = os.path.expanduser(args.output_file)
+        try:
+            os.makedirs(os.path.dirname(filepath), exist_ok=True)
+            with open(filepath, "w") as f:
+                f.write(output_str + "\n")
+            print(f"[+] Successfully wrote Lua config to {filepath}", file=sys.stderr)
+        except Exception as e:
+            print(f"[-] Failed to write to {filepath}: {e}", file=sys.stderr)
+
+    # Graphing
+    if args.plot:
+        plt.plot(*list(zip(*windows_points)), label="Windows Points")
+        plt.plot(*list(zip(*points)), label="Scaled Points")
+        plt.xlabel("device-speed")
+        plt.ylabel("pointer-speed")
+        plt.legend(loc="best")
+        plt.title("Mouse Acceleration Curve")
+        plt.show()

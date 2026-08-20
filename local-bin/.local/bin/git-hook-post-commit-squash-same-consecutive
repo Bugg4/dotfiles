@@ -1,0 +1,49 @@
+#!/bin/bash
+# git-hook-post-commit-squash-same-consecutive
+# 
+# This script is intended to be used as a Git post-commit hook.
+# It automatically squashes consecutive, unpushed commits that have the exact same message.
+# This is useful for cleaning up automated commits (like package list updates) or 
+# repetitive work-in-progress commits without manual rebasing.
+#
+# Functionality:
+# 1. Checks if the current commit message matches the previous one.
+# 2. Verifies that the previous commit has not yet been pushed to the upstream branch.
+# 3. If conditions are met, it squashes the two commits together by performing a soft 
+#    reset and amending the previous commit.
+# 4. Uses an environment variable to prevent infinite recursion during the amend commit.
+
+# Prevent recursive calls from the hook itself
+if [ "$GIT_SQUASH_HOOK" = "1" ]; then
+    exit 0
+fi
+
+# Get the current and previous commit messages (full body)
+CURRENT_MSG=$(git log -1 --pretty=%B)
+PREV_MSG=$(git log -1 --pretty=%B HEAD^ 2>/dev/null)
+
+# Exit if no previous commit exists
+if [ -z "$PREV_MSG" ]; then
+    exit 0
+fi
+
+# Compare messages
+if [ "$CURRENT_MSG" = "$PREV_MSG" ]; then
+    # Check if HEAD^ is unpushed
+    UPSTREAM=$(git rev-parse --abbrev-ref @{u} 2>/dev/null)
+    
+    IS_PUSHED=0
+    if [ -n "$UPSTREAM" ]; then
+        if git merge-base --is-ancestor HEAD^ "$UPSTREAM" 2>/dev/null; then
+            IS_PUSHED=1
+        fi
+    fi
+    
+    if [ "$IS_PUSHED" = "0" ]; then
+        # Squash!
+        export GIT_SQUASH_HOOK=1
+        git reset --soft HEAD~2
+        git commit -C HEAD@{1} --no-edit >/dev/null
+        echo "Auto-squashed consecutive commits with same message."
+    fi
+fi

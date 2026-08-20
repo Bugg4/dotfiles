@@ -1,0 +1,138 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# migrate-project-path.sh <old-path> <new-path>
+#
+# Updates all opencode storage references when a project directory has been
+# moved/renamed on disk. Run this AFTER moving the directory.
+#
+# Usage:
+#   ./migrate-project-path.sh /home/marco/OLMEDO-FLOTTA /home/marco/OLMEDO/WEB
+
+if [ $# -ne 2 ]; then
+  echo "Usage: $0 <old-path> <new-path>"
+  echo ""
+  echo "Example:"
+  echo "  $0 /home/marco/OLMEDO-FLOTTA /home/marco/OLMEDO/WEB"
+  exit 1
+fi
+
+OLD="$1"
+NEW="$2"
+
+if [ ! -d "$NEW" ]; then
+  echo "Error: new path '$NEW' does not exist"
+  exit 1
+fi
+
+if [ ! -d "$NEW/.git" ]; then
+  echo "Warning: '$NEW' is not a git repository"
+fi
+
+DB="$HOME/.local/share/opencode/opencode.db"
+SNAPSHOT_DIR="$HOME/.local/share/opencode/snapshot"
+DCP_DIR="$HOME/.local/share/opencode/storage/plugin/dcp"
+
+if [ ! -f "$DB" ]; then
+  echo "Error: opencode DB not found at $DB"
+  exit 1
+fi
+
+echo "=== opencode project path migration ==="
+echo "Old path: $OLD"
+echo "New path: $NEW"
+echo ""
+
+# Backup
+BACKUP="${DB}.bak.$(date +%Y%m%d%H%M%S)"
+cp "$DB" "$BACKUP"
+echo "Backup: $BACKUP"
+
+# Track summary
+UPDATED_DB=0
+UPDATED_SNAPSHOT=0
+UPDATED_DCP=0
+
+# ---- 1. Database updates ----
+
+# session.directory
+COUNT=$(sqlite3 "$DB" "SELECT COUNT(*) FROM session WHERE directory = '$OLD';")
+if [ "$COUNT" -gt 0 ]; then
+  sqlite3 "$DB" "UPDATE session SET directory = '$NEW' WHERE directory = '$OLD';"
+  echo "  session.directory: $COUNT rows updated"
+  UPDATED_DB=$((UPDATED_DB + COUNT))
+fi
+
+# Also handle subdirectories
+COUNT=$(sqlite3 "$DB" "SELECT COUNT(*) FROM session WHERE directory LIKE '$OLD/%';")
+if [ "$COUNT" -gt 0 ]; then
+  sqlite3 "$DB" "UPDATE session SET directory = REPLACE(directory, '$OLD', '$NEW') WHERE directory LIKE '$OLD/%';"
+  echo "  session.directory (subdirs): $COUNT rows updated"
+  UPDATED_DB=$((UPDATED_DB + COUNT))
+fi
+
+# project.worktree
+COUNT=$(sqlite3 "$DB" "SELECT COUNT(*) FROM project WHERE worktree = '$OLD';")
+if [ "$COUNT" -gt 0 ]; then
+  sqlite3 "$DB" "UPDATE project SET worktree = '$NEW' WHERE worktree = '$OLD';"
+  echo "  project.worktree: $COUNT rows updated"
+  UPDATED_DB=$((UPDATED_DB + COUNT))
+fi
+
+# project_directory.directory
+COUNT=$(sqlite3 "$DB" "SELECT COUNT(*) FROM project_directory WHERE directory = '$OLD';")
+if [ "$COUNT" -gt 0 ]; then
+  sqlite3 "$DB" "UPDATE project_directory SET directory = '$NEW' WHERE directory = '$OLD';"
+  echo "  project_directory.directory: $COUNT rows updated"
+  UPDATED_DB=$((UPDATED_DB + COUNT))
+fi
+
+# project.sandboxes (JSON array inside TEXT column)
+COUNT=$(sqlite3 "$DB" "SELECT COUNT(*) FROM project WHERE sandboxes LIKE '%$OLD%';")
+if [ "$COUNT" -gt 0 ]; then
+  sqlite3 "$DB" "UPDATE project SET sandboxes = REPLACE(sandboxes, '$OLD', '$NEW') WHERE sandboxes LIKE '%$OLD%';"
+  echo "  project.sandboxes: $COUNT rows updated"
+  UPDATED_DB=$((UPDATED_DB + COUNT))
+fi
+
+echo "  DB total: $UPDATED_DB changes"
+
+# ---- 2. Snapshot configs (worktree) ----
+
+while IFS= read -r -d '' cfg; do
+  if grep -q "worktree = $OLD" "$cfg" 2>/dev/null; then
+    sed -i "s|worktree = $OLD|worktree = $NEW|g" "$cfg"
+    echo "  snapshot config: $(echo "$cfg" | sed "s|$SNAPSHOT_DIR/||")"
+    UPDATED_SNAPSHOT=$((UPDATED_SNAPSHOT + 1))
+  fi
+done < <(find "$SNAPSHOT_DIR" -name config -type f -print0 2>/dev/null)
+
+# ---- 3. Snapshot alternates ----
+
+while IFS= read -r -d '' alt; do
+  if grep -q "$OLD" "$alt" 2>/dev/null; then
+    sed -i "s|$OLD|$NEW|g" "$alt"
+    echo "  snapshot alternates: $(echo "$alt" | sed "s|$SNAPSHOT_DIR/||")"
+    UPDATED_SNAPSHOT=$((UPDATED_SNAPSHOT + 1))
+  fi
+done < <(find "$SNAPSHOT_DIR" -name alternates -type f -print0 2>/dev/null)
+
+echo "  Snapshot total: $UPDATED_SNAPSHOT changes"
+
+# ---- 4. DCP storage files (compressed summaries) ----
+
+if [ -d "$DCP_DIR" ]; then
+  while IFS= read -r -d '' dcp; do
+    if grep -q "$OLD" "$dcp" 2>/dev/null; then
+      cp "$dcp" "${dcp}.bak"
+      sed -i "s|$OLD|$NEW|g" "$dcp"
+      echo "  DCP: $(basename "$dcp")"
+      UPDATED_DCP=$((UPDATED_DCP + 1))
+    fi
+  done < <(find "$DCP_DIR" -name '*.json' -type f -print0 2>/dev/null)
+fi
+
+echo "  DCP total: $UPDATED_DCP files updated"
+echo ""
+echo "=== Migration complete ==="
+echo "Backup: $BACKUP"

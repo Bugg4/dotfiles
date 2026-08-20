@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Start the 57,344-token Qwen3.8 llama.cpp profile and launch OpenCode with its
+# model-specific config. The server is stopped automatically when OpenCode exits.
+#
+# Usage:
+#   opencode-local-qwen-57344
+#   opencode-local-qwen-57344 --continue
+#   opencode-local-qwen-57344 run "prompt"
+
+PROFILE=coding
+MODEL_ID=qwen3.8-27b-coding
+CONFIG="${OPENCODE_LOCAL_CONFIG:-$HOME/.config/opencode/opencode.local-qwen-57344.jsonc}"
+
+HOST="${HOST:-127.0.0.1}"
+PORT="${PORT:-8080}"
+BASE_URL="http://$HOST:$PORT"
+
+if ! command -v llama-server-qwen38 >/dev/null 2>&1; then
+	printf 'llama-server-qwen38 is not on PATH\n' >&2
+	exit 1
+fi
+if ! command -v opencode >/dev/null 2>&1; then
+	printf 'opencode is not on PATH\n' >&2
+	exit 1
+fi
+if ! command -v curl >/dev/null 2>&1 || ! command -v jq >/dev/null 2>&1; then
+	printf 'opencode-local-qwen-57344 requires curl and jq\n' >&2
+	exit 1
+fi
+if [[ ! -f "$CONFIG" ]]; then
+	printf 'Local OpenCode config not found: %s\n' "$CONFIG" >&2
+	exit 1
+fi
+
+export OPENCODE_CONFIG="$CONFIG"
+
+# Reuse an already-running server only when it advertises the requested model.
+if curl --silent --fail --max-time 1 "$BASE_URL/health" >/dev/null 2>&1; then
+	if curl --silent --fail --max-time 2 "$BASE_URL/v1/models" \
+		| jq -e --arg id "$MODEL_ID" '.data[]? | select(.id == $id)' >/dev/null; then
+		printf 'Using existing llama.cpp server: %s\n' "$MODEL_ID"
+		opencode --model "llama.cpp/$MODEL_ID" "$@"
+		exit $?
+	fi
+	printf 'A llama.cpp server is already running at %s with a different model.\n' "$BASE_URL" >&2
+	printf 'Stop it first, or use the matching profile.\n' >&2
+	exit 1
+fi
+
+LOG="$(mktemp "${TMPDIR:-/tmp}/opencode-local-qwen-57344.XXXXXX.log")"
+SERVER_PID=""
+cleanup() {
+	if [[ -n "$SERVER_PID" ]] && kill -0 "$SERVER_PID" 2>/dev/null; then
+		kill "$SERVER_PID" 2>/dev/null || true
+		wait "$SERVER_PID" 2>/dev/null || true
+	fi
+	rm -f "$LOG"
+}
+trap cleanup EXIT INT TERM
+
+PROFILE="$PROFILE" HOST="$HOST" PORT="$PORT" llama-server-qwen38 >"$LOG" 2>&1 &
+SERVER_PID=$!
+
+ready=0
+for _ in $(seq 1 300); do
+	if ! kill -0 "$SERVER_PID" 2>/dev/null; then
+		break
+	fi
+	if curl --silent --fail --max-time 1 "$BASE_URL/health" >/dev/null 2>&1 \
+		&& curl --silent --fail --max-time 2 "$BASE_URL/v1/models" \
+		| jq -e --arg id "$MODEL_ID" '.data[]? | select(.id == $id)' >/dev/null; then
+		ready=1
+		break
+	fi
+	sleep 1
+done
+
+if (( ready == 0 )); then
+	printf 'llama.cpp did not become ready for profile=%s.\n' "$PROFILE" >&2
+	printf 'Server log:\n' >&2
+	cat "$LOG" >&2
+	exit 1
+fi
+
+printf 'Started Qwen3.8 profile=%s; launching OpenCode with llama.cpp/%s\n' \
+	"$PROFILE" "$MODEL_ID"
+opencode --model "llama.cpp/$MODEL_ID" "$@"
