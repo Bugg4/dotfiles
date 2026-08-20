@@ -25,7 +25,7 @@ if ! __is_vscode && ! __is_tmux; then
 fi
 
 # git branch in prompt
-source /usr/local/bin/git-prompt
+source "$HOME/.local/bin/git-prompt"
 
 PROMPT_COMMAND='PS1_CMD1=$(pwd)'
 PS1='\n\[\e[2m\]${PS1_CMD1}\n\[\e[0;1m\]\u\[\e[0;2m\]@\[\e[0m\]\h\[\e[2m\]$(__git_ps1)> \[\e[0m\]'
@@ -81,4 +81,3 @@ PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:/home/marco/.lmstudio/bin"
 # End of LM Studio CLI section
-
