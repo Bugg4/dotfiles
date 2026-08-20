@@ -54,13 +54,13 @@
         },
         "llama.cpp": {
             "npm": "@ai-sdk/openai-compatible",
-            "name": "llama.cpp (local, tuned)",
+            "name": "llama.cpp",
             "options": {
                 "baseURL": "http://127.0.0.1:8080/v1"
             },
             "models": {
                 "qwen3.8-27b": {
-                    "name": "Qwen3.8 27B Q4_K_M (262K, local)",
+                    "name": "Qwen3.8 27B Q4_K_M (local/256k)",
                     "family": "qwen",
                     "temperature": true,
                     "reasoning": true,
@@ -76,7 +76,7 @@
                     }
                 },
                 "qwen3.8-27b-vram": {
-                    "name": "Qwen3.8 27B UD-Q3_K_XL (64K, all-VRAM)",
+                    "name": "Qwen3.8 27B UD-Q3_K_XL (local/64k)",
                     "family": "qwen",
                     "temperature": true,
                     "reasoning": true,
@@ -89,6 +89,22 @@
                     "limit": {
                         "context": 65536,
                         "output": 16384
+                    }
+                },
+                "qwen3.8-27b-coding": {
+                    "name": "Qwen3.8 27B UD-Q3_K_XL + MTP (local/56k)",
+                    "family": "qwen",
+                    "temperature": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "interleaved": "reasoning_content",
+                    "modalities": {
+                        "input": ["text"],
+                        "output": ["text"]
+                    },
+                    "limit": {
+                        "context": 57344,
+                        "output": 8192
                     }
                 }
             }

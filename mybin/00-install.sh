@@ -27,6 +27,7 @@ SCRIPTS=(
 	"waydroid-full-reset"
 	"winswitch"
 	"qwen38-server"
+	"qwen38-opencode"
 )
 
 echo "Installing selected scripts to $TARGET..."

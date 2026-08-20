@@ -9,6 +9,7 @@ set -euo pipefail
 #   PROFILE=fast qwen38-server
 #   PROFILE=q8 qwen38-server
 #   PROFILE=vram qwen38-server     # 64K, fully GPU-resident, fastest
+#   PROFILE=coding qwen38-server   # 56K, all-VRAM + MTP, source build
 #   VISION=1 qwen38-server
 #
 # Optional overrides: PORT, HOST, MODEL, MMPROJ, FIT_TARGET, PROFILE, VISION.
@@ -24,13 +25,14 @@ FIT_TARGET="${FIT_TARGET:-1280}"
 
 mapfile -t runtime_dirs < <(printf '%s\n' "$HOME"/.lmstudio/extensions/backends/llama.cpp-linux-x86_64-nvidia-cuda12-avx2-* | sort -V)
 RUNTIME_DIR="${runtime_dirs[-1]}"
-SERVER="$RUNTIME_DIR/llama-server"
+LM_SERVER="$RUNTIME_DIR/llama-server"
+SOURCE_SERVER="$HOME/code/llama.cpp/build-sm120-fa-all/bin/llama-server"
+SERVER="$LM_SERVER"
 VENDOR_DIR="$HOME/.lmstudio/extensions/backends/vendor/linux-llama-cuda12-vendor-v1"
+USE_VENDOR=1
+THREADS_BATCH=24
+runtime_args=()
 
-if [[ ! -x "$SERVER" ]]; then
-	printf 'llama-server not found at %s\n' "$SERVER" >&2
-	exit 1
-fi
 case "$PROFILE" in
 full)
 	DEFAULT_MODEL="$HOME/.lmstudio/models/lmstudio-community/Qwen3.8-27B-GGUF/Qwen3.8-27B-Q4_K_M.gguf"
@@ -72,11 +74,36 @@ vram)
 	gpu_args=(--gpu-layers 999 --fit off)
 	spec_args=()
 	;;
+coding)
+	DEFAULT_MODEL="$HOME/.lmstudio/models/unsloth/Qwen3.8-27B-GGUF/Qwen3.8-27B-UD-Q3_K_XL.gguf"
+	CTX=57344
+	CACHE=q4_0
+	BATCH=256
+	UBATCH=128
+	ALIAS=qwen3.8-27b-coding
+	SERVER="$SOURCE_SERVER"
+	USE_VENDOR=0
+	THREADS_BATCH=12
+	gpu_args=(--gpu-layers 999 --fit off)
+	spec_args=(
+		--spec-type draft-mtp
+		--spec-draft-n-max 3
+		--spec-draft-p-min 0.0
+		--spec-draft-type-k q4_0
+		--spec-draft-type-v q4_0
+	)
+	runtime_args=(--no-warmup --cache-prompt --cache-ram 8192 --ctx-checkpoints 32)
+	;;
 *)
-	printf 'Unknown PROFILE=%s (use full, fast, q8, or vram)\n' "$PROFILE" >&2
+	printf 'Unknown PROFILE=%s (use full, fast, q8, vram, or coding)\n' "$PROFILE" >&2
 	exit 2
 	;;
 esac
+
+if [[ ! -x "$SERVER" ]]; then
+	printf 'llama-server not found at %s\n' "$SERVER" >&2
+	exit 1
+fi
 
 MODEL="${MODEL:-$DEFAULT_MODEL}"
 
@@ -85,8 +112,8 @@ if [[ ! -f "$MODEL" ]]; then
 	exit 1
 fi
 
-if [[ "$PROFILE" == vram && "$VISION" == 1 ]]; then
-	printf 'PROFILE=vram is text-only: the vision projector does not fit with the 64K all-VRAM profile\n' >&2
+if [[ ("$PROFILE" == vram || "$PROFILE" == coding) && "$VISION" == 1 ]]; then
+	printf 'PROFILE=%s is text-only: the vision projector does not fit with the all-VRAM profile\n' "$PROFILE" >&2
 	exit 2
 fi
 
@@ -99,7 +126,9 @@ if [[ "$VISION" == 1 ]]; then
 	vision_args=(--mmproj "$MMPROJ")
 fi
 
-export LD_LIBRARY_PATH="$VENDOR_DIR${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+if (( USE_VENDOR )); then
+	export LD_LIBRARY_PATH="$VENDOR_DIR${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+fi
 
 printf 'Starting Qwen3.8-27B: profile=%s ctx=%s cache=%s vision=%s\n' \
 	"$PROFILE" "$CTX" "$CACHE" "$VISION"
@@ -110,9 +139,10 @@ exec "$SERVER" \
 	--ctx-size "$CTX" \
 	"${gpu_args[@]}" \
 	--flash-attn on --jinja \
-	--parallel 1 --threads 12 --threads-batch 24 \
+	--parallel 1 --threads 12 --threads-batch "$THREADS_BATCH" \
 	--batch-size "$BATCH" --ubatch-size "$UBATCH" \
 	"${spec_args[@]}" \
+	"${runtime_args[@]}" \
 	--cache-type-k "$CACHE" --cache-type-v "$CACHE" \
 	--temperature 1.0 --top-p 0.95 --top-k 20 --min-p 0.0 \
 	--presence-penalty 0.0 \
