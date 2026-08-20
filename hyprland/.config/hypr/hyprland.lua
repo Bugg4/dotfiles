@@ -12,7 +12,7 @@ global<const> fileManager = "dolphin"
 global<const> launcher = "fuzzel"
 global<const> browser = "brave"
 global<const> grimshot = "grimshot"
-global<const> emoji_picker = "/home/marco/code/emoji/emoji-picker /home/marco/code/emoji/unicode_17_emojis.json"
+global<const> emoji_picker = "/home/marco/dev/emoji/emoji-picker /home/marco/dev/emoji/unicode_17_emojis.json"
 global<const> notification_daemon = "dunst"
 global<const> gui_finder = "fsearch"
 

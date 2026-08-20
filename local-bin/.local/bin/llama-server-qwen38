@@ -31,7 +31,7 @@ GPU_INDEX="${GPU_INDEX:-0}"
 mapfile -t runtime_dirs < <(printf '%s\n' "$HOME"/.lmstudio/extensions/backends/llama.cpp-linux-x86_64-nvidia-cuda12-avx2-* | sort -V)
 RUNTIME_DIR="${runtime_dirs[-1]}"
 LM_SERVER="$RUNTIME_DIR/llama-server"
-SOURCE_SERVER="$HOME/code/llama.cpp/build-sm120-fa-all/bin/llama-server"
+SOURCE_SERVER="$HOME/dev/llama.cpp/build-sm120-fa-all/bin/llama-server"
 SERVER="$LM_SERVER"
 VENDOR_DIR="$HOME/.lmstudio/extensions/backends/vendor/linux-llama-cuda12-vendor-v1"
 USE_VENDOR=1

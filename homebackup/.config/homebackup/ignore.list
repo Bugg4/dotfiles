@@ -14,5 +14,5 @@ pnpm/
 # Patterns
 *cache*/
 *Cache*/
-code/**/target/
+dev/**/target/
 BraveSoftware/Brave-Browser/Default/Service Worker/
