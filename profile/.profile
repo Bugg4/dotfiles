@@ -5,6 +5,12 @@ export SCREENSHOTS_DIR="$HOME/images/screenshots"
 export DOCUMENTS_DIR="$HOME/documents"
 export DOWNLOADS_DIR="$HOME/downloads"
 
+# XDG base directories. XDG_RUNTIME_DIR is intentionally left to logind.
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
+
 # Preferred applications. TERM is deliberately not set here; the active
 # terminal emulator is responsible for choosing the correct terminal type.
 export TERMINAL=alacritty
