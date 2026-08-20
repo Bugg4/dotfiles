@@ -2,6 +2,7 @@
     "$schema": "https://opencode.ai/config.json",
     "share": "disabled",
     "compaction": {
+        // Subscription profile: never compact or prune automatically.
         "auto": false,
         "prune": false,
         "reserved": 10000
@@ -39,75 +40,6 @@
             "cp *": "ask",
             "chmod *": "ask",
             "sudo *": "ask"
-        }
-    },
-    "provider": {
-        "lmstudio": {
-            "npm": "@ai-sdk/openai-compatible",
-            "name": "LM Studio (local)",
-            "options": {
-                "baseURL": "http://127.0.0.1:1234/v1"
-            }
-            // Models are auto-discovered from the running LM Studio server
-            // (/v1/models) by the opencode-lmstudio plugin — no need to list
-            // them here. Just load a model in LM Studio and restart opencode.
-        },
-        "llama.cpp": {
-            "npm": "@ai-sdk/openai-compatible",
-            "name": "llama.cpp",
-            "options": {
-                "baseURL": "http://127.0.0.1:8080/v1"
-            },
-            "models": {
-                "qwen3.8-27b": {
-                    "name": "Qwen3.8 27B Q4_K_M (local/256k)",
-                    "family": "qwen",
-                    "temperature": true,
-                    "reasoning": true,
-                    "tool_call": true,
-                    "interleaved": "reasoning_content",
-                    "modalities": {
-                        "input": ["text"],
-                        "output": ["text"]
-                    },
-                    "limit": {
-                        "context": 262144,
-                        "output": 32768
-                    }
-                },
-                "qwen3.8-27b-vram": {
-                    "name": "Qwen3.8 27B UD-Q3_K_XL (local/64k)",
-                    "family": "qwen",
-                    "temperature": true,
-                    "reasoning": true,
-                    "tool_call": true,
-                    "interleaved": "reasoning_content",
-                    "modalities": {
-                        "input": ["text"],
-                        "output": ["text"]
-                    },
-                    "limit": {
-                        "context": 65536,
-                        "output": 16384
-                    }
-                },
-                "qwen3.8-27b-coding": {
-                    "name": "Qwen3.8 27B UD-Q3_K_XL + MTP (local/56k)",
-                    "family": "qwen",
-                    "temperature": true,
-                    "reasoning": true,
-                    "tool_call": true,
-                    "interleaved": "reasoning_content",
-                    "modalities": {
-                        "input": ["text"],
-                        "output": ["text"]
-                    },
-                    "limit": {
-                        "context": 57344,
-                        "output": 8192
-                    }
-                }
-            }
         }
     },
     "formatter": true,
