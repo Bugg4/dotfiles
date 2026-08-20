@@ -27,9 +27,6 @@ export const FilterLmstudioEmbeddings: Plugin = async () => ({
       }
     }
 
-    // /v1/models does not expose the context length actually used by the
-    // loaded instance. Read LM Studio's local API so OpenCode can trigger
-    // compaction before the server returns an over-context error.
     try {
       const configuredBaseURL = String(
         config?.provider?.lmstudio?.options?.baseURL ??

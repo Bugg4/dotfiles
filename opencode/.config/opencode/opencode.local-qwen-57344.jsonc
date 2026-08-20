@@ -1,0 +1,118 @@
+{
+    "$schema": "https://opencode.ai/config.json",
+    "model": "llama.cpp/qwen3.8-27b-coding",
+    "enabled_providers": [
+        "llama.cpp",
+        "lmstudio"
+    ],
+    "compaction": {
+        "auto": true,
+        "prune": true,
+        "reserved": 8000,
+        "tail_turns": 4,
+        "preserve_recent_tokens": 10000
+    },
+    "agent": {
+        "compaction": {
+            "variant": "low",
+            "temperature": 0.2,
+            "prompt": "Create a precise continuation handoff, not a narrative recap. Preserve the user's current objective verbatim or faithfully, completed work, active reasoning state, exact tool results that affect decisions, files and symbols being changed, commands and parameters, errors and rejected attempts, decisions with rationale, unresolved questions, and the exact next action. Distinguish completed, active, blocked, and pending work. Never claim a file was only partially read when a completed read tool returned it. Never infer that a tool was not called if the history shows a call or error. Keep concrete measurements, IDs, paths, URLs, and configuration values. Omit conversational filler and obsolete raw output. End with a short NEXT ACTION section so the agent can continue without redoing work."
+        }
+    },
+    "provider": {
+        "lmstudio": {
+            "npm": "@ai-sdk/openai-compatible",
+            "name": "LM Studio (local)",
+            "options": {
+                "baseURL": "http://127.0.0.1:1234/v1"
+            }
+        },
+        "llama.cpp": {
+            "npm": "@ai-sdk/openai-compatible",
+            "name": "llama.cpp",
+            "options": {
+                "baseURL": "http://127.0.0.1:8080/v1"
+            },
+            "models": {
+                "qwen3.8-27b": {
+                    "name": "Qwen3.8 27B Q4_K_M (local/256k)",
+                    "family": "qwen",
+                    "temperature": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "interleaved": "reasoning_content",
+                    "modalities": {
+                        "input": ["text"],
+                        "output": ["text"]
+                    },
+                    "limit": {
+                        "context": 262144,
+                        "input": 229376,
+                        "output": 32768
+                    }
+                },
+                "qwen3.8-27b-vram": {
+                    "name": "Qwen3.8 27B UD-Q3_K_XL (local/64k)",
+                    "family": "qwen",
+                    "temperature": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "interleaved": "reasoning_content",
+                    "modalities": {
+                        "input": ["text"],
+                        "output": ["text"]
+                    },
+                    "limit": {
+                        "context": 65536,
+                        "input": 49152,
+                        "output": 16384
+                    }
+                },
+                "qwen3.8-27b-coding": {
+                    "name": "Qwen3.8 27B UD-Q3_K_XL + MTP (local/56k)",
+                    "family": "qwen",
+                    "temperature": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "interleaved": "reasoning_content",
+                    "modalities": {
+                        "input": ["text"],
+                        "output": ["text"]
+                    },
+                    "limit": {
+                        "context": 57344,
+                        "input": 49152,
+                        "output": 8192
+                    }
+                }
+            }
+        }
+    },
+    "mcp": {
+        "pdf_reader": {
+            "type": "local",
+            "command": [
+                "npx",
+                "-y",
+                "@sylphx/pdf-reader-mcp"
+            ],
+            "enabled": true
+        },
+        "playwright": {
+            "type": "local",
+            "command": [
+                "npx",
+                "@playwright/mcp@latest",
+                "--extension",
+                "--executable-path",
+                "/opt/brave-bin/brave"
+            ],
+            "enabled": true
+        }
+    },
+    "plugin": [
+        "opencode-acp@latest",
+        "opencode-lmstudio@latest",
+        "./local-plugins/filter-lmstudio-embeddings.ts"
+    ]
+}

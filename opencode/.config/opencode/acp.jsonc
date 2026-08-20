@@ -1,0 +1,66 @@
+{
+    "$schema": "https://raw.githubusercontent.com/ranxianglei/opencode-acp/master/dcp.schema.json",
+    "enabled": true,
+    "autoUpdate": true,
+    "debug": false,
+    "pruneNotification": "minimal",
+    "pruneNotificationType": "toast",
+    "commands": {
+        "enabled": true
+    },
+    "allowSubAgents": true,
+    "compress": {
+        "permission": "allow",
+        "showCompression": true,
+        "summaryBuffer": true,
+
+        // General defaults for hosted and dynamically discovered models.
+        "maxContextLimit": "55%",
+        "minContextLimit": "45%",
+
+        // Absolute values avoid percentage/input-budget ambiguity and leave
+        // ample room for the 57,344-token llama.cpp slot to finish a tool loop.
+        "modelMaxLimits": {
+            "llama.cpp/qwen3.8-27b-coding": 28000,
+            "llama.cpp/qwen3.8-27b-vram": 30000,
+            "llama.cpp/qwen3.8-27b": 140000
+        },
+        "modelMinLimits": {
+            "llama.cpp/qwen3.8-27b-coding": 24000,
+            "llama.cpp/qwen3.8-27b-vram": 26000,
+            "llama.cpp/qwen3.8-27b": 110000
+        },
+
+        // Long autonomous tool loops need more frequent opportunities to
+        // compact than ACP's large-model growth heuristic would otherwise give.
+        "nudgeFrequency": 1,
+        "minNudgeContextPercent": 15,
+        "nudgeGrowthTokens": 6000,
+        "toolOutputNudgeThreshold": 6000,
+        "iterationNudgeThreshold": 6,
+        "nudgeForce": "strong",
+
+        // Preserve the current plan/reasoning and latest user instruction.
+        "preserveRecentMessages": 2,
+        "preserveRecentTokens": 3000,
+        "preserveLastUserMessage": true,
+        "lastSegmentSoftBlock": false,
+        "minCompressRange": 3000,
+        "maxSummaryLengthHard": 12000,
+        "emergencyThresholdPercent": "80%",
+        "protectedTools": ["skill", "compress"]
+    },
+    "gc": {
+        "promotionThreshold": 4,
+        "maxOldGenSummaryLength": 4000,
+        "majorGcThresholdPercent": "95%",
+        "batchCleanup": {
+            "lowThreshold": "55%",
+            "highThreshold": "70%",
+            "forceThreshold": "85%"
+        }
+    },
+    "qualityGate": {
+        "enabled": false
+    }
+}
