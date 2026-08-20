@@ -1,67 +1,39 @@
-# If not running interactively, don't do anything
+# Interactive Bash configuration.
 [[ $- != *i* ]] && return
 
-# check if we're in vscode's temirnal
-function __is_vscode() {
-   if [ "$TERM_PROGRAM" = "vscode" ]; then
-      return 0
-   else
-      return 1
-   fi
+shopt -s histappend checkwinsize
+
+__is_vscode() {
+  [[ ${TERM_PROGRAM:-} == vscode ]]
 }
 
-# check if we're inside tmux
-function __is_tmux() {
-   if { [ "$TERM" = "screen" ] || [ -n "$TMUX" ]; }; then
-      return 0
-   else
-      return 1
-   fi
+__is_tmux() {
+  [[ -n ${TMUX:-} || ${TERM:-} == screen* || ${TERM:-} == tmux* ]]
 }
 
-# flex if appropriate
-if ! __is_vscode && ! __is_tmux; then
-   fastfetch
+if ! __is_vscode && ! __is_tmux && command -v fastfetch >/dev/null 2>&1; then
+  fastfetch
 fi
 
-# git branch in prompt
-source "$HOME/.local/bin/git-prompt"
+# Git branch support and prompt.
+[[ -r "$HOME/.local/bin/git-prompt" ]] && source "$HOME/.local/bin/git-prompt"
 
-PROMPT_COMMAND='PS1_CMD1=$(pwd)'
-PS1='\n\[\e[2m\]${PS1_CMD1}\n\[\e[0;1m\]\u\[\e[0;2m\]@\[\e[0m\]\h\[\e[2m\]$(__git_ps1)> \[\e[0m\]'
+__prompt_update() {
+  history -a
+  PS1_CWD=$PWD
+}
+PROMPT_COMMAND=__prompt_update
+PS1='\n\[\e[2m\]${PS1_CWD}\n\[\e[0;1m\]\u\[\e[0;2m\]@\[\e[0m\]\h\[\e[2m\]$(__git_ps1)> \[\e[0m\]'
 
-# source aliases file
-if [ -f "$HOME/.bash_aliases" ]; then
-   source "$HOME/.bash_aliases"
-fi
+# Aliases and functions
+[[ -r "$HOME/.bash_aliases" ]] && source "$HOME/.bash_aliases"
+[[ -r "$HOME/.bash_functions" ]] && source "$HOME/.bash_functions"
 
-# bash functions file
-if [ -f "$HOME/.bash_functions" ]; then
-   source "$HOME/.bash_functions"
-fi
+# Interactive runtime integrations
+[[ -r /usr/share/nvm/init-nvm.sh ]] && source /usr/share/nvm/init-nvm.sh
 
-# pnpm
-export PNPM_HOME="$HOME/.local/share/pnpm"
-case ":$PATH:" in
-*":$PNPM_HOME:"*) ;;
-*) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-# pnpm end
-
-# Append user cargo bianaries
-export PATH="$HOME/.cargo/bin:$PATH"
-
-# Node version manager (nvm)
-source /usr/share/nvm/init-nvm.sh
-
-# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-
-# Append this line to ~/.bashrc to enable fzf keybindings for Bash:
-source /usr/share/fzf/key-bindings.bash
-# Append this line to ~/.bashrc to enable fuzzy auto-completion for Bash:
-source /usr/share/fzf/completion.bash
+[[ -r /usr/share/fzf/key-bindings.bash ]] && source /usr/share/fzf/key-bindings.bash
+[[ -r /usr/share/fzf/completion.bash ]] && source /usr/share/fzf/completion.bash
 
 # Eternal bash history.
 # ---------------------
@@ -74,10 +46,4 @@ export HISTCONTROL=erasedups
 # Change the file location because certain bash sessions truncate .bash_history file upon close.
 # http://superuser.com/questions/575479/bash-history-truncated-to-500-lines-on-each-login
 export HISTFILE=~/.bash_eternal_history
-# Force prompt to write history after every command.
-# http://superuser.com/questions/20900/bash-history-loss
-PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
-
-# Added by LM Studio CLI (lms)
-export PATH="$PATH:/home/marco/.lmstudio/bin"
-# End of LM Studio CLI section
+# History is flushed by __prompt_update after each command.

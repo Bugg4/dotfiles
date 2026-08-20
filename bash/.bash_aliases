@@ -2,25 +2,18 @@
 # generic
 alias ls='eza --color=auto --icons=auto --long --hyperlink --group-directories-first'
 # alias ls='ls -lah --color=auto --group-directories-first'
-alias stow='stow --no-folding --verbose --ignore=^mybin$ --dir=${HOME}/dotfiles/ --target=${HOME}/'
-alias stow-force='cd $HOME/dotfiles && git stash -m "before stow-force on $(date -I)" && stow --no-folding --verbose --ignore=^mybin$ --dir=${HOME}/dotfiles/ --target=${HOME}/ --adopt * && git restore .'
+alias stow='stow --no-folding --verbose --dir=${HOME}/dotfiles --target=${HOME}'
 alias yt='yt-dlp'
 alias btop='btop -u 100'
 alias todo='micro $HOME/todo.md'
 alias bloat='sudo du -sh * .[^.]* | sort -h'
-alias music='mpv "$(find /mnt/WIN_D/Musica/ | fzf)"'
 alias ffmpeg='ffmpeg -hide_banner'
 alias reflector-refresh='sudo reflector --verbose --protocol https --latest 16 --sort rate --save /etc/pacman.d/mirrorlist && cat /etc/pacman.d/mirrorlist'
 alias kp='keepass-cli-wrapper $HOME/documents/keepass/keepass.kdbx'
 alias ag='antigravity'
 alias drag='ripdrag --no-click --resizable --icon-size 64 --and-exit'
 
-# quick sourcing
-alias sourcebash='source ${HOME}/.bashrc && printf "${HOME}/.bashrc sourced!\n"'
-alias sourceprofile='source ${HOME}/.bash_profile && printf "${HOME}/.bash_profile sourced!\n"'
-
 # Open dotfiles
-alias dot='code -a $(find $HOME/dotfiles/ -maxdepth 2 -type d | fzf)'
 alias dots='code $HOME/dotfiles'
 
 # directories
@@ -34,7 +27,6 @@ alias wine-ew-affinity='rum ElementalWarriorWine-x86_64 $HOME/.local/share/wine/
 alias wine-affinity-new='WINEPREFIX="$HOME/.local/share/wine/prefixes/affinity-new"'
 
 # git
-alias gsb='git checkout $(git branch --all | fzf)'
 alias gor='git-open-remote'
 
 # confirmation
