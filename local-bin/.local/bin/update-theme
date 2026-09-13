@@ -2,7 +2,7 @@
 
 wp=$(realpath $1)
 
-hyprctl hyprpaper wallpaper 'DP-4, '$wp', cover'
+hyprctl hyprpaper wallpaper 'DP-1, '$wp', cover'
 wallust run $wp
 killall waybar
 waybar &
