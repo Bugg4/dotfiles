@@ -3,7 +3,8 @@
     "model": "llama.cpp/qwen3.8-27b-coding",
     "enabled_providers": [
         "llama.cpp",
-        "lmstudio"
+        "lmstudio",
+        "openai"
     ],
     "compaction": {
         "auto": true,
@@ -111,7 +112,7 @@
         }
     },
     "plugin": [
-        "opencode-acp@latest",
+        "@tarquinen/opencode-dcp@latest",
         "opencode-lmstudio@latest",
         "./local-plugins/filter-lmstudio-embeddings.ts"
     ]

@@ -2,12 +2,14 @@
 description: "Hidden one-angle evidence worker used only by the /research orchestrator."
 mode: subagent
 hidden: true
-variant: high
+variant: xhigh
 temperature: 0.2
 permission:
   read: allow
   edit:
     "*": deny
+    "**/research/**": allow
+  write:
     "**/research/**": allow
   glob: allow
   grep: allow

@@ -2,15 +2,65 @@
     "$schema": "https://opencode.ai/config.json",
     "share": "disabled",
     "compaction": {
-        // Subscription profile: never compact or prune automatically.
+        // Subscription profile: context reduction stays user-triggered.
         "auto": false,
         "prune": false,
-        "reserved": 10000
+        "reserved": 32000
+    },
+    "agent": {
+        // Delegated work uses the subscription model; primary agents keep the
+        // model selected by the active profile.
+        "general": {
+            "model": "commandcode/muse-spark-1.3-contributor",
+            "variant": "xhigh"
+        },
+        "explore": {
+            "model": "commandcode/muse-spark-1.3-contributor",
+            "variant": "xhigh"
+        },
+        "debater": {
+            "model": "commandcode/muse-spark-1.3-contributor",
+            "variant": "xhigh"
+        }
     },
     "permission": {
-        "edit": "allow",
-        "grep": "allow",
+        // READ: allow everything except sensitive (last match wins, so broad first, denies last).
+        // NOTE: explicit "*" allow overrides the built-in .env deny, so .env denies are re-added below.
+        "read": {
+            "*": "allow",
+            "*.kdbx": "deny",
+            "*keepass*": "deny",
+            "*KeePass*": "deny",
+            "~/documents/keepass/*": "deny",
+            "~/.ssh/*": "deny",
+            "~/.gnupg/*": "deny",
+            "~/.git-credentials": "deny",
+            "*.pem": "deny",
+            "*id_rsa*": "deny",
+            "*id_ed25519*": "deny",
+            "*.env": "deny",
+            "*.env.*": "deny",
+            "*.env.example": "allow"
+        },
+        // WRITE (covers edit/write/patch): same policy as read.
+        "edit": {
+            "*": "allow",
+            "*.kdbx": "deny",
+            "*keepass*": "deny",
+            "*KeePass*": "deny",
+            "~/documents/keepass/*": "deny",
+            "~/.ssh/*": "deny",
+            "~/.gnupg/*": "deny",
+            "~/.git-credentials": "deny",
+            "*.pem": "deny",
+            "*id_rsa*": "deny",
+            "*id_ed25519*": "deny",
+            "*.env": "deny",
+            "*.env.*": "deny",
+            "*.env.example": "allow"
+        },
         "glob": "allow",
+        "grep": "allow",
         "lsp": "allow",
         "skill": {
             "*": "allow",
@@ -20,26 +70,78 @@
         "question": "allow",
         "webfetch": "allow",
         "websearch": "allow",
+        // Allow working outside the session cwd without asking, except sensitive paths.
+        // Required for "read/write whatever as non-root user" (e.g. /tmp, other checkouts).
+        "external_directory": {
+            "*": "allow",
+            "/tmp": "allow",
+            "/tmp/*": "allow",
+            "*.kdbx": "deny",
+            "*keepass*": "deny",
+            "*KeePass*": "deny",
+            "~/documents/keepass/*": "deny",
+            "~/.ssh/*": "deny",
+            "~/.gnupg/*": "deny",
+            "~/.git-credentials": "deny",
+            "*.pem": "deny",
+            "*id_rsa*": "deny",
+            "*id_ed25519*": "deny",
+            "*.env": "deny",
+            "*.env.*": "deny",
+            "*.env.example": "allow"
+        },
+        // Permissive bash: allow by default, ask for privileged/destructive.
+        // Last match wins: "*" first, asks next, safe /tmp re-allows LAST.
+        // Deletion model: relative paths (= session cwd) stay allowed via base "*";
+        // absolute paths outside /tmp ask; absolute /tmp paths re-allowed at the end.
+        // Limitation: an absolute path inside the cwd (e.g. "rm /home/marco/proj/file"
+        // while cwd is /home/marco/proj) still asks — use relative paths for cwd deletes.
         "bash": {
-            "*": "ask",
-            "grep *": "allow",
-            "rg *": "allow",
-            "git status*": "allow",
-            "git log*": "allow",
-            "git diff*": "allow",
-            "ls *": "allow",
-            "which *": "allow",
-            "node *": "allow",
-            "npm test*": "allow",
-            "git push*": "ask",
-            "git commit*": "ask",
-            "git add*": "ask",
-            "rm *": "ask",
-            "rmdir *": "ask",
-            "mv *": "ask",
-            "cp *": "ask",
+            "*": "allow",
+            "sudo *": "ask",
+            "su *": "ask",
+            "doas *": "ask",
+            "run0 *": "ask",
             "chmod *": "ask",
-            "sudo *": "ask"
+            "chown *": "ask",
+            "chattr *": "ask",
+            "setfacl *": "ask",
+            "dd *": "ask",
+            "mkfs*": "ask",
+            "fdisk *": "ask",
+            "parted *": "ask",
+            "wipefs *": "ask",
+            "blkdiscard *": "ask",
+            "shutdown*": "ask",
+            "reboot*": "ask",
+            "halt*": "ask",
+            "poweroff*": "ask",
+            "git push*": "ask",
+            // Absolute deletes outside safe dirs -> ask (both bare "rm /x" and flagged "rm -rf /x" forms).
+            "rm /*": "ask",
+            "rm * /*": "ask",
+            "rm ~*": "ask",
+            "rm * ~*": "ask",
+            "rm $HOME*": "ask",
+            "rm * $HOME*": "ask",
+            "rmdir /*": "ask",
+            "rmdir * /*": "ask",
+            "rmdir ~*": "ask",
+            "rmdir * ~*": "ask",
+            "unlink /*": "ask",
+            "unlink * /*": "ask",
+            "shred *": "ask",
+            "trash *": "ask",
+            "gio trash *": "ask",
+            // Safe deletes: /tmp re-allowed LAST so they override the asks above.
+            "rm /tmp*": "allow",
+            "rm * /tmp*": "allow",
+            "rm $TMPDIR*": "allow",
+            "rm * $TMPDIR*": "allow",
+            "rmdir /tmp*": "allow",
+            "rmdir * /tmp*": "allow",
+            "unlink /tmp*": "allow",
+            "unlink * /tmp*": "allow"
         }
     },
     "formatter": true,
@@ -58,6 +160,14 @@
         ]
     },
     "mcp": {
+        "lean-lsp": {
+            "type": "local",
+            "command": [
+                "uvx",
+                "lean-lsp-mcp"
+            ],
+            "enabled": true
+        },
         "pdf_reader": {
             "type": "local",
             "command": [
@@ -82,6 +192,6 @@
     "plugin": [
         "@tarquinen/opencode-dcp@latest",
         "opencode-lmstudio@latest",
-        "./plugins/filter-lmstudio-embeddings.ts"
+        "./local-plugins/filter-lmstudio-embeddings.ts"
     ]
 }

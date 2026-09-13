@@ -14,31 +14,27 @@
         "showCompression": true,
         "summaryBuffer": true,
 
-        // General defaults for hosted and dynamically discovered models.
-        "maxContextLimit": "55%",
-        "minContextLimit": "45%",
+        // Default: 500k for all models; GPT models from OAI providers
+        // override to 350k via providers below.
+        "maxContextLimit": 500000,
+        "minContextLimit": 500000,
 
-        // Absolute values avoid percentage/input-budget ambiguity and leave
-        // ample room for the 57,344-token llama.cpp slot to finish a tool loop.
-        "modelMaxLimits": {
-            "llama.cpp/qwen3.8-27b-coding": 28000,
-            "llama.cpp/qwen3.8-27b-vram": 30000,
-            "llama.cpp/qwen3.8-27b": 140000
-        },
-        "modelMinLimits": {
-            "llama.cpp/qwen3.8-27b-coding": 24000,
-            "llama.cpp/qwen3.8-27b-vram": 26000,
-            "llama.cpp/qwen3.8-27b": 110000
-        },
-
-        // Long autonomous tool loops need more frequent opportunities to
-        // compact than ACP's large-model growth heuristic would otherwise give.
         "nudgeFrequency": 1,
-        "minNudgeContextPercent": 15,
-        "nudgeGrowthTokens": 6000,
-        "toolOutputNudgeThreshold": 6000,
-        "iterationNudgeThreshold": 6,
+        "minNudgeContextPercent": 100,
+        "nudgeGrowthTokens": 500000,
+        "toolOutputNudgeThreshold": 500000,
+        "minNudgeGrowthFloor": 500000,
+        "iterationNudgeThreshold": 1000000,
         "nudgeForce": "strong",
+        "providers": {
+            "openai": {
+                "maxContextLimit": 350000,
+                "emergencyThresholdPercent": 350000,
+                "nudgeGrowthTokens": 350000,
+                "toolOutputNudgeThreshold": 350000,
+                "minNudgeGrowthFloor": 350000
+            }
+        },
 
         // Preserve the current plan/reasoning and latest user instruction.
         "preserveRecentMessages": 2,
@@ -47,17 +43,17 @@
         "lastSegmentSoftBlock": false,
         "minCompressRange": 3000,
         "maxSummaryLengthHard": 12000,
-        "emergencyThresholdPercent": "80%",
+        "emergencyThresholdPercent": 500000,
         "protectedTools": ["skill", "compress"]
     },
     "gc": {
         "promotionThreshold": 4,
         "maxOldGenSummaryLength": 4000,
-        "majorGcThresholdPercent": "95%",
+        "majorGcThresholdPercent": 500000,
         "batchCleanup": {
-            "lowThreshold": "55%",
-            "highThreshold": "70%",
-            "forceThreshold": "85%"
+            "lowThreshold": 500000,
+            "highThreshold": 500000,
+            "forceThreshold": 500000
         }
     },
     "qualityGate": {
