@@ -29,6 +29,15 @@ PS1='\n\[\e[2m\]${PS1_CWD}\n\[\e[0;1m\]\u\[\e[0;2m\]@\[\e[0m\]\h\[\e[2m\]$(__git
 [[ -r "$HOME/.bash_aliases" ]] && source "$HOME/.bash_aliases"
 [[ -r "$HOME/.bash_functions" ]] && source "$HOME/.bash_functions"
 
+# FFF cannot initialize at the home directory; use ripgrep there instead.
+opencode() {
+  if [[ "$PWD" == "$HOME" ]]; then
+    OPENCODE_DISABLE_FFF=1 command opencode "$@"
+  else
+    command opencode "$@"
+  fi
+}
+
 # Interactive runtime integrations
 [[ -r /usr/share/nvm/init-nvm.sh ]] && source /usr/share/nvm/init-nvm.sh
 
