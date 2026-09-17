@@ -23,7 +23,8 @@ breeze-gtk
 btop
 chafa
 chntpw
-chromium
+claude-code
+cloudflared
 comfy-desktop
 command-code
 copyparty
@@ -37,7 +38,6 @@ docker-compose
 dog
 dolphin
 dosfstools
-doublecmd-qt6
 drawy
 dunst
 easyeffects
@@ -68,12 +68,13 @@ gptfdisk
 gputest
 grim
 grub
+gsmartcontrol
 gvfs
 gvfs-mtp
 hashcat
 hashcat-utils
 hdparm
-herdr-bin
+helix
 hfdownloader
 htmlq
 hugo
@@ -81,6 +82,7 @@ hyprland
 hyprlock
 hyprpaper
 hyprpicker
+hyprpolkitagent
 hyprutils
 hyprwayland-scanner
 i2c-tools
@@ -90,7 +92,9 @@ inkscape
 iperf
 jackett-bin
 jq
+kdeconnect
 keepassxc
+krita
 kumono
 lazygit
 lftp
@@ -100,12 +104,14 @@ linux
 linux-firmware
 linux-firmware-qlogic
 linux-headers
+lld
 lmstudio-bin
 localsend-bin
 lowdown
 lshw
 lsix
 lsplug
+lzip
 man-db
 man-pages
 markdownlint-cli
@@ -121,6 +127,7 @@ msedit
 mtools
 nano
 nb
+ncdu
 neovim
 nethogs
 networkmanager
@@ -142,7 +149,6 @@ obsidian
 ollama-cuda
 onlyoffice-bin
 opencode
-opencode2-bin
 openssh
 os-prober
 p7zip-gui
@@ -177,7 +183,6 @@ ripdrag
 ripgrep
 rmpc
 rofi
-rufus-linux
 rustup
 s-tui
 samba
@@ -188,12 +193,14 @@ sdparm
 shfmt
 shotcut
 slurp
+sshfs
 steam
 stow
 strace
 syncthing
 sysstat
 tcc
+thunderbird
 tidy
 timeshift
 tinyxxd

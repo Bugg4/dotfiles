@@ -4,5 +4,14 @@
         "input_submit": "return",
         "input_newline": "shift+return"
     },
-    "plugin": ["@adtention/opencode"]
+    "plugin": [
+        "@adtention/opencode",
+        [
+            "file:///home/marco/dev/opencode-multi-usage/dist/index.js",
+            {
+                "providers": ["codex", "commandcode"],
+                "refreshInterval": "30s"
+            }
+        ]
+    ]
 }

@@ -31,7 +31,8 @@ GPU_INDEX="${GPU_INDEX:-0}"
 mapfile -t runtime_dirs < <(printf '%s\n' "$HOME"/.lmstudio/extensions/backends/llama.cpp-linux-x86_64-nvidia-cuda12-avx2-* | sort -V)
 RUNTIME_DIR="${runtime_dirs[-1]}"
 LM_SERVER="$RUNTIME_DIR/llama-server"
-SOURCE_SERVER="$HOME/dev/llama.cpp/build-sm120-fa-all/bin/llama-server"
+SOURCE_BIN="$HOME/dev/llama.cpp/build-sm120-fa-all/bin"
+SOURCE_SERVER="$SOURCE_BIN/llama-server"
 SERVER="$LM_SERVER"
 VENDOR_DIR="$HOME/.lmstudio/extensions/backends/vendor/linux-llama-cuda12-vendor-v1"
 USE_VENDOR=1
@@ -196,6 +197,8 @@ fi
 
 if (( USE_VENDOR )); then
 	export LD_LIBRARY_PATH="$VENDOR_DIR${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+else
+	export LD_LIBRARY_PATH="$SOURCE_BIN${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 fi
 
 printf 'Starting Qwen3.8-27B: profile=%s ctx=%s cache=%s vision=%s\n' \
@@ -208,6 +211,7 @@ exec "$SERVER" \
 	"${gpu_args[@]}" \
 	--flash-attn on --jinja \
 	--parallel 1 --threads 12 --threads-batch "$THREADS_BATCH" \
+	--poll 0 --poll-batch 0 \
 	--batch-size "$BATCH" --ubatch-size "$UBATCH" \
 	"${spec_args[@]}" \
 	"${runtime_args[@]}" \
