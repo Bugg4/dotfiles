@@ -1,101 +1,155 @@
 #!/usr/bin/env bash
+# Browse a KeePass database with fzf and copy attributes to the clipboard.
+#
+# Usage: keepass-cli-wrapper [-k keyfile] [-t seconds] [-1] <database.kdbx>
+#   -k FILE   key file (if the database uses one)
+#   -t SECS   clear the clipboard after SECS seconds (default 30, 0 = never)
+#   -1        exit after the first copy instead of returning to the entry list
+#
+# The password is asked once; Esc in the entry list quits.
 
-# Dependency check
-command -v keepassxc-cli >/dev/null 2>&1 || {
-    echo >&2 "keepassxc-cli is required but not installed. Aborting."
-    exit 1
-}
-command -v fzf >/dev/null 2>&1 || {
-    echo >&2 "fzf is required but not installed. Aborting."
-    exit 1
-}
-command -v wl-copy >/dev/null 2>&1 || {
-    echo >&2 "wl-copy is required but not installed. Aborting."
-    exit 1
-}
+set -u
 
-# Check arguments
-if [ -z "$1" ]; then
-    echo "Usage: $0 <path-to-database.kdbx>"
-    exit 1
-fi
-
-DB_PATH="$1"
 CLIPBOARD_TIMEOUT=30
+ONCE=0
+KEYFILE_ARGS=()
 
-# Password input
-trap 'unset DB_PASS' EXIT
-read -s -p "Enter Database Password: " DB_PASS
-echo ""
+usage() {
+    sed -n '4,8s/^# \{0,1\}//p' "$0" >&2
+    exit "${1:-1}"
+}
 
-if [ -z "$DB_PASS" ]; then
-    echo "Password cannot be empty."
+while getopts ":k:t:1h" opt; do
+    case "$opt" in
+        k) KEYFILE_ARGS=(-k "$OPTARG") ;;
+        t) CLIPBOARD_TIMEOUT="$OPTARG" ;;
+        1) ONCE=1 ;;
+        h) usage 0 ;;
+        *) usage ;;
+    esac
+done
+shift $((OPTIND - 1))
+[ $# -eq 1 ] || usage
+DB_PATH="$1"
+[ -f "$DB_PATH" ] || { echo >&2 "Database not found: $DB_PATH"; exit 1; }
+
+need() {
+    command -v "$1" >/dev/null 2>&1 || { echo >&2 "$1 is required but not installed. Aborting."; exit 1; }
+}
+need keepassxc-cli
+need fzf
+
+# Clipboard backend: Wayland first, then X11.
+if [ -n "${WAYLAND_DISPLAY:-}" ] && command -v wl-copy >/dev/null 2>&1; then
+    clip_copy()  { wl-copy; }
+    clip_paste() { wl-paste --no-newline 2>/dev/null; }
+    clip_clear() { wl-copy --clear; }
+elif command -v xclip >/dev/null 2>&1; then
+    clip_copy()  { xclip -selection clipboard -in; }
+    clip_paste() { xclip -selection clipboard -out 2>/dev/null; }
+    clip_clear() { printf '' | xclip -selection clipboard -in; }
+elif command -v xsel >/dev/null 2>&1; then
+    clip_copy()  { xsel --clipboard --input; }
+    clip_paste() { xsel --clipboard --output 2>/dev/null; }
+    clip_clear() { xsel --clipboard --clear; }
+else
+    echo >&2 "No clipboard tool found (need wl-copy, xclip or xsel). Aborting."
     exit 1
 fi
 
-# Get list of entries
-echo "Opening DB..."
-SELECTED_ENTRY=$(echo "$DB_PASS" |
-    keepassxc-cli ls -R -f "$DB_PATH" 2>/dev/null |
-    grep -v '/$' |
-    grep -v '^$' |
-    fzf --prompt="Select Entry > " --height=40% --layout=reverse --border)
+# Run keepassxc-cli with the password fed on stdin (printf is a builtin: not visible in ps).
+kp() {
+    local cmd="$1"; shift
+    printf '%s\n' "$DB_PASS" | keepassxc-cli "$cmd" -q "${KEYFILE_ARGS[@]}" "$DB_PATH" "$@"
+}
 
-if [ -z "$SELECTED_ENTRY" ]; then
-    echo "No entry selected."
-    exit 0
+trap 'unset DB_PASS' EXIT
+read -rs -p "Password for $(basename "$DB_PATH"): " DB_PASS
+echo
+[ -n "$DB_PASS" ] || { echo >&2 "Password cannot be empty."; exit 1; }
+
+echo "Opening database..."
+if ! ENTRIES=$(kp ls -R -f 2>&1); then
+    echo >&2 "Could not open database: wrong password/key file, or the file is unreadable."
+    exit 1
 fi
+ENTRIES=$(grep -v -e '/$' -e '^$' <<<"$ENTRIES")
+[ -n "$ENTRIES" ] || { echo >&2 "Database has no entries."; exit 1; }
 
-# 4. Get attributes for selected entry
-RAW_ATTRS=$(echo "$DB_PASS" | keepassxc-cli show "$DB_PATH" "$SELECTED_ENTRY" 2>/dev/null)
-
-SELECTED_ATTR_LINE=$({
-    echo "$RAW_ATTRS"
-    echo "TOTP: (Generate Code)"
-} |
-    grep -v "^$" |
-    fzf --prompt="Select Attribute to Copy > " --height=20% --layout=reverse --border)
-
-if [ -z "$SELECTED_ATTR_LINE" ]; then
-    echo "No attribute selected."
-    exit 0
-fi
-
-# Extract the Key name (everything before the first colon)
-ATTR_KEY=$(echo "$SELECTED_ATTR_LINE" | cut -d: -f1)
-
-# 5. Fetch Secret and Copy
-if [[ "$ATTR_KEY" == "TOTP" ]]; then
-    # Run the command and capture both stdout (the code) and stderr (the error message)
-    SECRET=$(echo "$DB_PASS" | keepassxc-cli show -t -q "$DB_PATH" "$SELECTED_ENTRY" 2>&1)
-
-    # Define the expected error string from keepassxc-cli
-    ERROR_STRING="has no TOTP set up."
-
-    # Check if the output contains the error message
-    if [[ "$SECRET" == *"$ERROR_STRING"* ]]; then
-        echo "ERROR: $SELECTED_ENTRY has no TOTP configured."
-        exit 1
+# Copy a secret, then clear it after the timeout, but only if it's still on the clipboard
+# (so we don't wipe something you copied in the meantime).
+copy_secret() {
+    local secret="$1"
+    printf '%s' "$secret" | clip_copy
+    if [ "$CLIPBOARD_TIMEOUT" -gt 0 ] 2>/dev/null; then
+        local hash
+        hash=$(printf '%s' "$secret" | sha256sum)
+        (
+            sleep "$CLIPBOARD_TIMEOUT"
+            [ "$(clip_paste | sha256sum)" = "$hash" ] && clip_clear
+        ) >/dev/null 2>&1 &
+        disown
     fi
-    # If we reach here, SECRET contains the valid TOTP code.
+}
 
-else
-    # Standard attribute retrieval
-    SECRET=$(echo "$DB_PASS" | keepassxc-cli show -s -a "$ATTR_KEY" -q "$DB_PATH" "$SELECTED_ENTRY")
-fi
+FZF_OPTS=(--height=40% --layout=reverse --border)
 
-# Copy to Wayland clipboard
-echo -n "$SECRET" | wl-copy
+# In -1 mode an error ends the run; otherwise go back to the entry list.
+next_or_exit() { [ "$ONCE" -eq 1 ] && exit 1; return 0; }
 
-echo "---------------------------------------------------"
-echo "Copied '$ATTR_KEY' from '$SELECTED_ENTRY' to clipboard."
-echo "Clipboard will clear in $CLIPBOARD_TIMEOUT seconds."
-echo "---------------------------------------------------"
+while :; do
+    ENTRY=$(fzf "${FZF_OPTS[@]}" --prompt="Entry > " <<<"$ENTRIES") || break
 
-# 6. Clear Clipboard after timeout
-(
-    sleep "$CLIPBOARD_TIMEOUT"
-    wl-copy --clear
-) &
+    if ! RAW=$(kp show --all "$ENTRY" 2>&1); then
+        echo >&2 "Could not read entry: $RAW"
+        next_or_exit; continue
+    fi
 
-disown
+    # Output is "Key: value" lines, but multi-line Notes continue on bare lines until "Uuid:".
+    # Skip those continuations (marking Notes with "…"), and hide Uuid.
+    MENU=$(in_notes=0
+        while IFS= read -r line; do
+            case "$line" in
+                Notes:*) in_notes=1; notes="$line"; continue ;;
+                Uuid:*)
+                    [ "$in_notes" -eq 1 ] && printf '%s\n' "$notes"
+                    in_notes=0; continue ;;
+            esac
+            if [ "$in_notes" -eq 1 ]; then
+                notes="${notes%…} …"
+                continue
+            fi
+            [[ "$line" == *:* ]] && printf '%s\n' "$line"
+        done <<<"$RAW")
+    MENU+=$'\n'"TOTP: (generate code)"
+
+    LINE=$(fzf "${FZF_OPTS[@]}" --prompt="$ENTRY > " <<<"$MENU") || continue
+    KEY=${LINE%%:*}
+
+    if [ "$KEY" = "TOTP" ]; then
+        if ! SECRET=$(kp show -t "$ENTRY" 2>&1); then
+            echo >&2 "$ENTRY has no TOTP configured."
+            next_or_exit; continue
+        fi
+    else
+        if ! SECRET=$(kp show -s -a "$KEY" "$ENTRY" 2>&1); then
+            echo >&2 "Could not read '$KEY': $SECRET"
+            next_or_exit; continue
+        fi
+    fi
+
+    if [ -z "$SECRET" ]; then
+        echo "'$KEY' is empty, nothing copied."
+        next_or_exit; continue
+    fi
+
+    copy_secret "$SECRET"
+    unset SECRET
+    if [ "$CLIPBOARD_TIMEOUT" -gt 0 ] 2>/dev/null; then
+        echo "Copied '$KEY' from '$ENTRY' (clears in ${CLIPBOARD_TIMEOUT}s)."
+    else
+        echo "Copied '$KEY' from '$ENTRY'."
+    fi
+
+    [ "$ONCE" -eq 1 ] && break
+done
